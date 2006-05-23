@@ -1,8 +1,8 @@
-MANIFEST
-README
+Changes
 LICENSE
-Todo
+MANIFEST
 MANIFEST.SKIP
+README
 Makefile.PL
 lib/Pod/Multi.pm
 t/01_load.t

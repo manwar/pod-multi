@@ -1,15 +1,41 @@
-pod2text Pod::Multi.pm > README
+README for Pod::Multi
 
-If this is still here it means the programmer was too lazy to create the readme file.
+This document refers to version 0.01 of Pod::Multi.  This version was
+released May 22, 2006.
 
-You can create it now by using the command shown above from this directory.
+To install this module on your system, place the tarball archive file in a 
+temporary directory and call the following:
 
-At the very least you should be able to use this set of instructions
-to install the module...
+% gunzip Pod-Multi-0.01.tar.gz
+% tar xf Pod-Multi-0.01.tar
+% cd Pod-Multi-0.01
+% perl Makefile.PL
+% make
+% make test
+% make install
 
-perl Makefile.PL
-make
-make test
-make install
+If during installation you wish to view more information on test results, 
+substitute the fllowing for the sixth line in the sequence of commands
+above:
 
-If you are on a windows box you should use 'nmake' rather than 'make'.
+% make test TEST=VERBOSE
+
+If you are installing this module over any earlier version, you may 
+substitute the following for the last line in the sequence of commands 
+above:
+
+% make install UNINST=1
+
+If you are installing this module on a Win32 system with 'nmake', 
+substitute 'nmake' for 'make' in the sequence of commands above.
+
+In sending e-mail to the author, please put "Pod::Multi" or 
+"Pod-Multi" in the subject line.
+
+Author:  James E. Keenan (jkeenan@cpan.org).
+Originally created May 22, 2006.
+
+Copyright (c) 2006 James E. Keenan.  United States.  All rights reserved. 
+This is free software and may be distributed under the same terms as Perl
+itself.
+
