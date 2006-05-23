@@ -1,0 +1,8 @@
+MANIFEST
+README
+LICENSE
+Todo
+MANIFEST.SKIP
+Makefile.PL
+lib/Pod/Multi.pm
+t/01_load.t
