@@ -2,14 +2,32 @@ package Pod::Multi;
 #$Id#
 use strict;
 use warnings;
+use Exporter ();
+use vars qw($VERSION @ISA @EXPORT);
+$VERSION     = '0.01';
+@ISA         = qw(Exporter);
+@EXPORT      = qw( pod2multi );
+use Pod::Text;
+use Pod::Man;
+use Pod::HTML;
+use Carp;
+use File::Basename;
 
-BEGIN {
-    use Exporter ();
-    use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-    $VERSION     = '0.01';
-    @ISA         = qw(Exporter);
-    #Give a hoot don't pollute, do not export more than needed by default
-    @EXPORT      = qw( pod2multi );
+sub pod2multi {
+    croak "Must supply name of file containing POD" unless @_;
+    my @args = @_;
+    my $pod = $args[0];
+    # use File::Basename here to construct output names
+    my $htmltitle;
+    if (@args > 1) {
+        $htmltitle = join q{ }, @args[1..$#args];
+    }
+    my %options;
+    $options{text} = $options{man} = $options{html} = {};
+    my @textoptions = %{$options{text}};
+    my $tparser = Pod::Text->new(@textoptions);
+#    $tparser->parse_from_file($pod, $name);
+    return 1;
 }
 
 
