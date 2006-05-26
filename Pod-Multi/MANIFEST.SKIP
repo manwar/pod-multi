@@ -5,7 +5,6 @@
 .svn/
 
 # ExtUtils::MakeMaker generated files and dirs.
-^MANIFEST\.(?!SKIP)
 ^Makefile$
 ^blib/
 ^blibdirs$
@@ -23,3 +22,6 @@
 ^\.#
 \.swp$
 \.bak$
+
+# other
+\.tar\.gz$
