@@ -10,6 +10,7 @@ t/02_bad_args.t
 t/03_pm.t
 t/04_no_suffix.t
 t/05_title.t
+t/lib/Pod/Multi/Auxiliary.pm
 t/lib/s1.pod
 t/lib/s3.pm
 t/lib/s4
