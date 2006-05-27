@@ -36,13 +36,16 @@ sub pod2multi {
         html    => "$outputpath/$name.html",
     );
     my %options;
-    $options{text} = $options{man} = $options{html} = [];
+    $options{text} = $options{man} = [];
     my $htmltitle;
-    if (@args > 1) {
-        $htmltitle = join q{ }, @args[1..$#args];
-    } else {
-        $htmltitle = $name;
-    }
+    $htmltitle = (@args > 1)
+        ? join q{ }, @args[1..$#args]
+        : $name;
+    $options{html} = [
+        "--infile=$pod",
+        "--outfile=$output{html}",
+        "--title=$htmltitle",
+    ];
 
     # text
     my $tparser = Pod::Text->new(@{$options{text}});
@@ -53,11 +56,7 @@ sub pod2multi {
     $mparser->parse_from_file($pod, $output{man});
 
     # html
-    Pod::Html::pod2html(
-        "--infile=$pod",
-        "--outfile=$output{html}",
-        "--title=$name",
-    );
+    Pod::Html::pod2html( @{$options{html}} );
 
     return 1;
 }

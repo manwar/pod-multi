@@ -6,4 +6,5 @@ MANIFEST
 MANIFEST.SKIP
 README
 t/01_load.t
+t/02_bad_args.t
 t/lib/s1.pod
