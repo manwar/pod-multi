@@ -2,8 +2,10 @@
 use strict;
 use warnings;
 use Test::More 
-tests => 12;
-# qw(no_plan);
+# tests => 13;
+qw(no_plan);
+use lib( "t/lib" );
+use Pod::Multi::Auxiliary qw( stringify );
 
 BEGIN {
     use_ok( 'Pod::Multi' );
@@ -38,6 +40,19 @@ my %pred = (
     ok(-f "$tempdir/$pred{text}", "pod2text worked");
     ok(-f "$tempdir/$pred{man}", "pod2man worked");
     ok(-f "$tempdir/$pred{html}", "pod2html worked");
-    # but need to test that html title tag was set
+
+    # test that html title tag was set
+    like(stringify("$tempdir/$pred{html}"), 
+        qr{<title>This\sis\sthe\sHTML\stitle</title>},
+       "HTML title tag located");
 }
 
+#sub stringify {
+#    my $output = shift;
+#    local $/;
+#    open my $FH, $output or croak "Unable to open $output";
+#    my $str = <$FH>;
+#    close $FH or croak "Unable to close $output";
+#    return $str;
+#}
+#
