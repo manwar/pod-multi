@@ -1,4 +1,4 @@
-# t/05_no_title.t - check what happens when no title for pod2html
+# t/05_title.t - check what happens when no title for pod2html
 use strict;
 use warnings;
 use Test::More 
