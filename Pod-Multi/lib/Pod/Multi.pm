@@ -23,12 +23,14 @@ sub pod2multi {
     my ($name,$path,$suffix) = fileparse($pod, @suffixes);
     my $outputpath = $path;   # make more flexible later
     my $manext;
-    if (defined $suffix) {
+    if ($suffix) {
         if ($suffix =~ /\.pm/) {
             $manext = q{.3};
         } else {
             $manext = q{.1};
         }
+    } else {
+        $manext = q{.1};
     }
     my %output = (
         text    => "$outputpath/$name.txt",
