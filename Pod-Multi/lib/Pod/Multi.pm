@@ -1,11 +1,12 @@
 package Pod::Multi;
 #$Id#
+require 5.006001;
 use strict;
 use warnings;
 use Exporter ();
-use vars qw($VERSION @ISA @EXPORT);
+our ($VERSION, @ISA, @EXPORT);
 $VERSION     = '0.01';
-@ISA         = qw(Exporter);
+@ISA         = qw( Exporter );
 @EXPORT      = qw( pod2multi );
 use Pod::Text;
 use Pod::Man;
@@ -18,18 +19,48 @@ sub pod2multi {
     my @args = @_;
     my $pod = $args[0];
     # use File::Basename here to construct output names
+    my @suffixes = ( qr(\.pm), qr(\.pl), qr(\.pod) );
+    my ($name,$path,$suffix) = fileparse($pod, @suffixes);
+    my $outputpath = $path;   # make more flexible later
+    my $manext;
+    if (defined $suffix) {
+        if ($suffix =~ /\.pm/) {
+            $manext = q{.3};
+        } else {
+            $manext = q{.1};
+        }
+    }
+    my %output = (
+        text    => "$outputpath/$name.txt",
+        man     => "$outputpath/$name$manext",
+        html    => "$outputpath/$name.html",
+    );
+    my %options;
+    $options{text} = $options{man} = $options{html} = [];
     my $htmltitle;
     if (@args > 1) {
         $htmltitle = join q{ }, @args[1..$#args];
+    } else {
+        $htmltitle = $name;
     }
-    my %options;
-    $options{text} = $options{man} = $options{html} = {};
-    my @textoptions = %{$options{text}};
-    my $tparser = Pod::Text->new(@textoptions);
-#    $tparser->parse_from_file($pod, $name);
+
+    # text
+    my $tparser = Pod::Text->new(@{$options{text}});
+    $tparser->parse_from_file($pod, $output{text});
+
+    # man
+    my $mparser = Pod::Man->new(@{$options{man}});
+    $mparser->parse_from_file($pod, $output{man});
+
+    # html
+    Pod::Html::pod2html(
+        "--infile=$pod",
+        "--outfile=$output{html}",
+        "--title=$name",
+    );
+
     return 1;
 }
-
 
 1;
 

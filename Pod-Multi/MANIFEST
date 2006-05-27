@@ -1,8 +1,9 @@
 Changes
+lib/Pod/Multi.pm
 LICENSE
+Makefile.PL
 MANIFEST
 MANIFEST.SKIP
 README
-Makefile.PL
-lib/Pod/Multi.pm
 t/01_load.t
+t/lib/s1.pod
