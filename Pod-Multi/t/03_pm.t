@@ -1,4 +1,4 @@
-# t/01_load.t - check module loading and create testing directory
+# t/03_pm.t - input file is Perl module
 use strict;
 use warnings;
 use Test::More 
@@ -15,13 +15,13 @@ BEGIN {
 }
 
 my $cwd = cwd();
-my $pod = "$cwd/t/lib/s1.pod";
+my $pod = "$cwd/t/lib/s3.pm";
 ok(-f $pod, "pod sample file located");
-my ($name, $path, $suffix) = fileparse($pod, qr{\.pod});
+my ($name, $path, $suffix) = fileparse($pod, qr{\.pm});
 my $stub = "$name$suffix";
 my %pred = (
     text    => "$name.txt",
-    man     => "$name.1",
+    man     => "$name.3",
     html    => "$name.html",
 );
 
@@ -38,11 +38,3 @@ my %pred = (
     ok(-f "$tempdir/$pred{html}", "pod2html worked");
 }
 
-
-__END__
-#ok(pod2multi($pod, 'Title', 'for', 'HTML'), 
-#    "pod2multi completed with title supplied for HTML");
-
-
-print STDERR "stub:  $stub\n";
-print STDERR "$testpod\n";
