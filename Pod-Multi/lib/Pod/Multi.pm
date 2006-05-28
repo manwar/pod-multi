@@ -5,7 +5,7 @@ use strict;
 use warnings;
 use Exporter ();
 our ($VERSION, @ISA, @EXPORT);
-$VERSION     = '0.01';
+$VERSION     = 0.02;
 @ISA         = qw( Exporter );
 @EXPORT      = qw( pod2multi );
 use Pod::Text;
@@ -16,12 +16,12 @@ use File::Basename;
 
 sub pod2multi {
     croak "Must supply name of file containing POD" unless @_;
-    my @args = @_;
-    my $pod = $args[0];
-    # use File::Basename here to construct output names
-    my @suffixes = ( qr(\.pm), qr(\.pl), qr(\.pod) );
-    my ($name,$path,$suffix) = fileparse($pod, @suffixes);
-    my $outputpath = $path;   # make more flexible later
+#    my @args = @_;
+#    my $pod = $args[0];
+    my $pod = shift(@_);
+    croak "File $pod with pod not located" unless -f $pod;
+    my ($name, $path, $suffix) 
+        = fileparse($pod, ( qr/\.pm/, qr/\.pl/, qr/\.pod/ ) );
     my $manext;
     if ($suffix) {
         if ($suffix =~ /\.pm/) {
@@ -32,22 +32,57 @@ sub pod2multi {
     } else {
         $manext = q{.1};
     }
-    my %output = (
-        text    => "$outputpath/$name.txt",
-        man     => "$outputpath/$name$manext",
-        html    => "$outputpath/$name.html",
-    );
+    
+    my @formats_accepted = qw(text man);
+    my @all_formats_accepted = (@formats_accepted, q{html});
+
+    my ($argsref, %args);
+    if (defined $_[0]) {
+        $argsref = shift(@_);
+        croak "Options must be supplied in a hash ref"
+            unless ref($argsref) eq 'HASH';
+        %args = %{$argsref};
+        for my $f (@all_formats_accepted) {
+            if (exists $args{$f}) {
+                croak "Value of option $f must be array ref"
+                    unless ref($args{$f} eq 'ARRAY');
+            }
+        }
+    }
+
     my %options;
-    $options{text} = $options{man} = [];
-    my $htmltitle;
-    $htmltitle = (@args > 1)
-        ? join q{ }, @args[1..$#args]
-        : $name;
-    $options{html} = [
-        "--infile=$pod",
-        "--outfile=$output{html}",
-        "--title=$htmltitle",
-    ];
+    for my $f (@formats_accepted) {
+        $options{$f} = exists $args{$f} ? $args{$f} : [];
+    }
+    
+    my ($pathsref, %paths);
+    if (defined $_[0]) {
+        $pathsref = shift(@_);
+        croak "Output paths must be supplied in a hash ref"
+            unless ref($pathsref) eq 'HASH';
+        %paths = %{$pathsref};
+        for my $f (@formats_accepted) {
+            if (exists $paths{$f}) {
+                croak "Output path $paths{$f} not located"
+                    unless -d $paths{$f};
+            }
+        }
+    }
+    my %outputpaths;
+    for my $f (@formats_accepted) {
+        $outputpaths{$f} = exists $paths{$f} ? $paths{$f} : $path; 
+    }
+    my %output = (
+        text    => "$outputpaths{text}/$name.txt",
+        man     => "$outputpaths{man}/$name$manext",
+#        html    => "$outputpaths{html}/$name.html",
+    );
+#    my %options;
+#    $options{text} = $options{man} = [];
+#    my $htmltitle;
+#    $htmltitle = (@args > 1)
+#        ? join q{ }, @args[1..$#args]
+#        : $name;
 
     # text
     my $tparser = Pod::Text->new(@{$options{text}});
@@ -58,7 +93,12 @@ sub pod2multi {
     $mparser->parse_from_file($pod, $output{man});
 
     # html
-    Pod::Html::pod2html( @{$options{html}} );
+#    $options{html} = [
+#        "--infile=$pod",
+#        "--outfile=$output{html}",
+#        "--title=$htmltitle",
+#    ];
+#    Pod::Html::pod2html( @{$options{html}} );
 
     return 1;
 }
@@ -92,22 +132,22 @@ or:
   pod2multi(
     source  => "/path/to/file_with_pod",
     options => {
-        man     =>  {
+        man     =>  [
             manoption1  => 'manvalue1',
             manoption2  => 'manvalue2',
             ...
-        },
-        text     =>  {
+        ],
+        text     =>  [
             textoption1  => 'textvalue1',
             textoption2  => 'textvalue2',
             ...
-        },
-        html     =>  {
-            htmloption1  => 'htmlvalue1',
-            htmloption2  => 'htmlvalue2',
-            title        => q{Title for HTML Version},
+        ],
+        html     =>  [
+            "--htmloption1=value1",
+            "--htmloption2=value2",
+            "--title=Title for HTML Version",
             ...
-        },
+        ],
     },
   );
 
@@ -151,26 +191,6 @@ option of saving those preferences to a personal defaults file stored
 underneath your home directory.)
 
 =head1 USAGE
-
-=head2 Command-Line Interface
-
-=head3 Default Case
-
-  pod2multi file_with_pod
-
-Will create files called F<file_with_pod.man>, F<file_with_pod.txt> and
-F<file_with_pod.html> in the same directory where F<file_with_pod> is located.
-You must have write permissions to that directory.  The name F<file_with_pod>
-cannot contain wordspaces.  These files will be created with the default
-options you would get by calling F<pod2man>, F<pod2text> and F<pod2html>
-individually.  The title tag in the HTML version will be C<file_with_pod>.
-
-=head3 Provide Title Tag for HTML Version
-
-  pod2multi file_with_pod Title for HTML Version
-
-Exactly the same as the default case, with one exception:  the title tag in
-the HTML version will be C<Title for HTML Version>.
 
 =head2 Functional Interface
 
@@ -228,7 +248,13 @@ containing documentation in the POD format.
 
 The C<options> key is, of course, optional.  (But why would you use the
 multiple argument version unless you wanted to specify options?)  The value of
-the C<options> key must be a reference to a hash (named or anonymous) whose
+the C<options> key must be a reference to an array (named or anonymous) whose
+elements differ depending on the type of output you are concerned with.
+C<@{$options{text}}> and C<@{$options{man}}> each hold a list of key-value
+pairs -- the key-value pairs you would normally supply to CPAN modules
+Pod::Text or Pod::Man.  C<@{$options{html}}> holds a list of options in the
+''long option'' format because that's what CPAN module Pod::Html expects.
+
 keys name various output formats.  Currently, the only output formats
 supported are manpage, text and html, and you always get all three.  However,
 if, for instance, you are satisfied with the default options for F<pod2man>
@@ -256,6 +282,26 @@ In this instance, since F<pod2text> supports either a short option (C<-w>) or
 a long option (C<--width>), F<pod2multi()> does so as well.  Consult the
 documentation for any of the three currently supported output formats with
 F<perldoc> or F<man>.
+
+=head2 Command-Line Interface
+
+=head3 Default Case
+
+  pod2multi file_with_pod
+
+Will create files called F<file_with_pod.man>, F<file_with_pod.txt> and
+F<file_with_pod.html> in the same directory where F<file_with_pod> is located.
+You must have write permissions to that directory.  The name F<file_with_pod>
+cannot contain wordspaces.  These files will be created with the default
+options you would get by calling F<pod2man>, F<pod2text> and F<pod2html>
+individually.  The title tag in the HTML version will be C<file_with_pod>.
+
+=head3 Provide Title Tag for HTML Version
+
+  pod2multi file_with_pod Title for HTML Version
+
+Exactly the same as the default case, with one exception:  the title tag in
+the HTML version will be C<Title for HTML Version>.
 
 =head1 BUGS
 
@@ -287,4 +333,5 @@ pod2man(1).  pod2text(1).  pod2html(1).
 Pod::Man(3pm).  Pod::Text(3pm).  Pod::Html(3pm).
 
 =cut
+
 

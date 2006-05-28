@@ -2,8 +2,8 @@
 use strict;
 use warnings;
 use Test::More 
-tests => 9;
-# qw(no_plan);
+# tests => 9;
+qw(no_plan);
 
 BEGIN {
     use_ok( 'Pod::Multi' );
@@ -22,7 +22,7 @@ my $stub = "$name$suffix";
 my %pred = (
     text    => "$name.txt",
     man     => "$name.1",
-    html    => "$name.html",
+#    html    => "$name.html",
 );
 
 {

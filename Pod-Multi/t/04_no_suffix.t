@@ -2,8 +2,8 @@
 use strict;
 use warnings;
 use Test::More 
-tests => 12;
-# qw(no_plan);
+# tests => 12;
+qw(no_plan);
 
 BEGIN {
     use_ok( 'Pod::Multi' );
@@ -22,7 +22,7 @@ my $stub = "$name$suffix";
 my %pred = (
     text    => "$name.txt",
     man     => "$name.1",
-    html    => "$name.html",
+#    html    => "$name.html",
 );
 
 {
@@ -35,15 +35,6 @@ my %pred = (
     ok(pod2multi($testpod), "pod2multi completed");
     ok(-f "$tempdir/$pred{text}", "pod2text worked");
     ok(-f "$tempdir/$pred{man}", "pod2man worked");
-    ok(-f "$tempdir/$pred{html}", "pod2html worked");
+#    ok(-f "$tempdir/$pred{html}", "pod2html worked");
 }
 
-
-__END__
-#ok(pod2multi($pod, 'Title', 'for', 'HTML'), 
-#    "pod2multi completed with title supplied for HTML");
-
-
-print STDERR "stub:  $stub\n";
-print STDERR "$testpod\n";
-defined $suffix ? print STDERR "defined:  ${suffix}XXX\n" : print STDERR "undefined\n";

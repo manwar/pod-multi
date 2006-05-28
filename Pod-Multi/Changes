@@ -1,5 +1,9 @@
 Changes for Pod::Multi
 
+0.02 Sun May 28 13:59:38 EDT 2006
+    - Rectified discrepancy between documentation and API.  pod2multi() no
+      longer takes HTML title tag directly.
+
 0.01 Mon May 22 20:15:55 2006
     - original version; created by ExtUtils::ModuleMaker 0.47
 
