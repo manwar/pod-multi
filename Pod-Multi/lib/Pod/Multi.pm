@@ -13,14 +13,13 @@ use Pod::Man;
 use Pod::HTML;
 use Carp;
 use File::Basename;
+use Data::Dumper;
 
 sub pod2multi {
     croak "Must supply name of file containing POD" unless @_;
-#    my @args = @_;
-#    my $pod = $args[0];
     my $pod = shift(@_);
     croak "File $pod with pod not located" unless -f $pod;
-    my ($name, $path, $suffix) 
+    my ($basename, $path, $suffix) 
         = fileparse($pod, ( qr/\.pm/, qr/\.pl/, qr/\.pod/ ) );
     my $manext;
     if ($suffix) {
@@ -33,8 +32,8 @@ sub pod2multi {
         $manext = q{.1};
     }
     
-    my @formats_accepted = qw(text man);
-    my @all_formats_accepted = (@formats_accepted, q{html});
+    my @text_and_man = qw(text man);
+    my @all_formats_accepted = (@text_and_man, q{html});
 
     my ($argsref, %args);
     if (defined $_[0]) {
@@ -44,61 +43,52 @@ sub pod2multi {
         %args = %{$argsref};
         for my $f (@all_formats_accepted) {
             if (exists $args{$f}) {
-                croak "Value of option $f must be array ref"
-                    unless ref($args{$f} eq 'ARRAY');
+                croak "Value of option $f must be a hash ref"
+                    unless ref($args{$f} eq 'HASH');
             }
         }
     }
 
     my %options;
-    for my $f (@formats_accepted) {
-        $options{$f} = exists $args{$f} ? $args{$f} : [];
+    # For text and man, the only things which need special attention are the 
+    # directory, file name and extension;
+    # everything else in %options is passed directly to the underlying
+    # function.
+    for my $f (@text_and_man) {
+        $options{$f} = exists $args{$f} ? $args{$f} : {};
     }
     
-    my ($pathsref, %paths);
-    if (defined $_[0]) {
-        $pathsref = shift(@_);
-        croak "Output paths must be supplied in a hash ref"
-            unless ref($pathsref) eq 'HASH';
-        %paths = %{$pathsref};
-        for my $f (@formats_accepted) {
-            if (exists $paths{$f}) {
-                croak "Output path $paths{$f} not located"
-                    unless -d $paths{$f};
-            }
-        }
-    }
     my %outputpaths;
-    for my $f (@formats_accepted) {
-        $outputpaths{$f} = exists $paths{$f} ? $paths{$f} : $path; 
+    for my $f (@text_and_man) {
+        $outputpaths{$f} = 
+            (exists $options{$f}{outputpath} and -f $options{$f}{outputpath})
+            ? $options{$f}{outputpath} : $path; 
     }
-    my %output = (
-        text    => "$outputpaths{text}/$name.txt",
-        man     => "$outputpaths{man}/$name$manext",
-#        html    => "$outputpaths{html}/$name.html",
-    );
-#    my %options;
-#    $options{text} = $options{man} = [];
-#    my $htmltitle;
-#    $htmltitle = (@args > 1)
-#        ? join q{ }, @args[1..$#args]
-#        : $name;
 
     # text
-    my $tparser = Pod::Text->new(@{$options{text}});
-    $tparser->parse_from_file($pod, $output{text});
+    my $tparser = Pod::Text->new(%{$options{text}});
+    $tparser->parse_from_file($pod, "$outputpaths{text}/$basename.txt");
 
     # man
-    my $mparser = Pod::Man->new(@{$options{man}});
-    $mparser->parse_from_file($pod, $output{man});
+    my $mparser = Pod::Man->new(%{$options{man}});
+    $mparser->parse_from_file($pod, "$outputpaths{man}/$basename$manext");
 
     # html
-#    $options{html} = [
-#        "--infile=$pod",
-#        "--outfile=$output{html}",
-#        "--title=$htmltitle",
-#    ];
-#    Pod::Html::pod2html( @{$options{html}} );
+    # html works differently.  We first compose a title if one has not been
+    # supplied.
+    my @htmlargs;
+    $options{html}{infile} = $pod
+        unless defined $options{html}{infile};
+    $options{html}{outfile} = "$path$basename.html" 
+        unless defined $options{html}{outfile};
+    $options{html}{title} = $basename 
+        unless defined $options{html}{title};
+    # Then we compose the long-options-style string to be passed to the
+    # underlying function.
+    foreach my $htmlopt (keys %{$options{html}}) {
+        push @htmlargs, "--${htmlopt}=$options{html}{$htmlopt}";
+    }
+    Pod::Html::pod2html( @htmlargs );
 
     return 1;
 }
@@ -132,22 +122,24 @@ or:
   pod2multi(
     source  => "/path/to/file_with_pod",
     options => {
-        man     =>  [
+        text     => {
+            sentence    =>  0,
+            width       => 78,
+            outputpath  => "/outputpath/for/man/",
+            ...
+        },
+        man     => {
             manoption1  => 'manvalue1',
             manoption2  => 'manvalue2',
+            outputpath  => "/outputpath/for/text/",
             ...
-        ],
-        text     =>  [
-            textoption1  => 'textvalue1',
-            textoption2  => 'textvalue2',
+        },
+        html     => {
+            infile       => "/path/to/infile",
+            outfile      => "/path/to/outfile",
+            title        => "Title for HTML",
             ...
-        ],
-        html     =>  [
-            "--htmloption1=value1",
-            "--htmloption2=value2",
-            "--title=Title for HTML Version",
-            ...
-        ],
+        },
     },
   );
 
@@ -210,28 +202,6 @@ writable).  The title tag for the HTML version will be C<file_with_pod>.
 
 =head3 Alternative Case:  Multiple Arguments in List of Key-Value Pairs
 
-  pod2multi(
-    source  => "/path/to/file_with_pod",
-    options => {
-        man     =>  {
-            manoption1  => 'manvalue1',
-            manoption2  => 'manvalue2',
-            ...
-        },
-        text     =>  {
-            textoption1  => 'textvalue1',
-            textoption2  => 'textvalue2',
-            ...
-        },
-        html     =>  {
-            htmloption1  => 'htmlvalue1',
-            htmloption2  => 'htmlvalue2',
-            title        => q{Title for HTML Version},
-            ...
-        },
-    },
-  );
-
 This is how Pod::Multi works internally; otherwise it's only recommended for
 people who have strong preferences.  Arguments can be provided to
 F<pod2multi()> in a list of key-value pairs subject to the following
@@ -248,40 +218,89 @@ containing documentation in the POD format.
 
 The C<options> key is, of course, optional.  (But why would you use the
 multiple argument version unless you wanted to specify options?)  The value of
-the C<options> key must be a reference to an array (named or anonymous) whose
-elements differ depending on the type of output you are concerned with.
-C<@{$options{text}}> and C<@{$options{man}}> each hold a list of key-value
-pairs -- the key-value pairs you would normally supply to CPAN modules
-Pod::Text or Pod::Man.  C<@{$options{html}}> holds a list of options in the
-''long option'' format because that's what CPAN module Pod::Html expects.
+the C<options> key must be a reference to an hash (named or anonymous) which
+holds a list of key-value pairs.
 
-keys name various output formats.  Currently, the only output formats
-supported are manpage, text and html, and you always get all three.  However,
-if, for instance, you are satisfied with the default options for F<pod2man>
-and F<pod2html> but want your plain-text versions to have a width of 72
-characters instead of F<pod2text>'s default 76 versions.  Then you could call
-F<pod2multi()> as follows:
+=over 4
 
-  pod2multi(
-    source  => "/path/to/file_with_pod",
-    options => {
-        text     =>  { '-w' => 72 },
+=item * C<$options{text}>
+
+With one exception, the key-value pairs are those you would normally supply to 
+C<Pod::Text::new()>.
+
+    text => {
+        sentence    =>  0,
+        width       => 78,
+        ...
     },
-  );
 
-or like this:
+The exception is that if you wish to specify a directory
+for the creation of the output file, you may do so with the C<outputpath>
+option.
 
-  pod2multi(
-    source  => "/path/to/file_with_pod",
-    options => {
-        text     =>  { '--width' => 72 },
+    text => {
+        outputpath  => /path/to/textoutput/,
+        ...
     },
-  );
+    
+Internally, C<pod2multi()> prepends this to the basename of the
+source file and provides the result as the second argument to
+C<Pod::Text::parse_from_file()>.  Note that this is a directory where the
+output file will reside -- I<not> the full path to that file.
 
-In this instance, since F<pod2text> supports either a short option (C<-w>) or
-a long option (C<--width>), F<pod2multi()> does so as well.  Consult the
-documentation for any of the three currently supported output formats with
-F<perldoc> or F<man>.
+=item * C<$options{man}>
+
+With one exception, the key-value pairs are those you would normally supply to 
+C<Pod::Man::new()>.
+
+    man => {
+        release     => $VERSION,
+        section     => 8,
+        ...
+    },
+
+The exception is that if you wish to specify a directory
+for the creation of the output file, you may do so with the C<outputpath>
+option.
+
+    man => {
+        outputpath  => /path/to/manoutput/,
+        ...
+    },
+    
+Internally, C<pod2multi()> prepends this to the basename of the
+source file and provides the result as the second argument to
+C<Pod::Man::parse_from_file()>.  Note that this is a directory where the
+output file will reside -- I<not> the full path to that file.
+
+=item * C<$options{html}>
+
+The C<html> option works in the same way as <text> and <man>, except that
+there is no <outputpath> sub-option.  That's because the key-value pairs which
+should be supplied via hash reference to C<$options{html} are the contents of
+the ''long options'' normally supplied to C<Pod::Html::pod2html>.  That
+function, which <pod2multi()> calls internally, expects arguments in the long
+option format:
+
+    --infile=/path/to/source,
+    --outfile=/path/to/htmloutput,
+    --title="Title for HTML",
+
+... rather than in list-of-key-value-pairs format.  For consistency,
+C<pod2multi()> expects arguments to C<$options{html}> in the same format as to
+C<$options{text}> and C<$options{man}>, then converts them internally to the
+long options needed by C<Pod::Html::pod2html()>.
+
+    html    => {
+        infile   => "/path/to/source",
+        outfile  => "/path/to/htmloutput",
+        title    => "Title for HTML",
+        ...
+    },
+        
+=back
+
+=back
 
 =head2 Command-Line Interface
 
@@ -334,4 +353,8 @@ Pod::Man(3pm).  Pod::Text(3pm).  Pod::Html(3pm).
 
 =cut
 
+__END__
 
+# print STDERR Dumper $pod;
+# print STDERR Dumper $options{html};
+# print STDERR Dumper \@htmlargs;

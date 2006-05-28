@@ -22,7 +22,7 @@ my $stub = "$name$suffix";
 my %pred = (
     text    => "$name.txt",
     man     => "$name.1",
-#    html    => "$name.html",
+    html    => "$name.html",
 );
 
 {
@@ -35,6 +35,6 @@ my %pred = (
     ok(pod2multi($testpod), "pod2multi completed");
     ok(-f "$tempdir/$pred{text}", "pod2text worked");
     ok(-f "$tempdir/$pred{man}", "pod2man worked");
-#    ok(-f "$tempdir/$pred{html}", "pod2html worked");
+    ok(-f "$tempdir/$pred{html}", "pod2html worked");
 }
 

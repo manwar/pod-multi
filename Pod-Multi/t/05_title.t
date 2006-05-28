@@ -26,7 +26,7 @@ my $htmltitle = join q{ }, @htmltitle;
 my %pred = (
     text    => "$name.txt",
     man     => "$name.1",
-#    html    => "$name.html",
+    html    => "$name.html",
 );
 
 {
@@ -37,14 +37,15 @@ my %pred = (
     ok(-f $testpod, "sample pod copied for testing");
     
 #    ok(pod2multi($testpod, @htmltitle), "pod2multi completed");
-#    ok(-f "$tempdir/$pred{text}", "pod2text worked");
-#    ok(-f "$tempdir/$pred{man}", "pod2man worked");
-#    ok(-f "$tempdir/$pred{html}", "pod2html worked");
-#
-#    # test that html title tag was set
-#    like(stringify("$tempdir/$pred{html}"), 
-#        qr{<title>This\sis\sthe\sHTML\stitle</title>},
-#       "HTML title tag located");
+#    ok(pod2multi($testpod, @htmltitle), "pod2multi completed");
+    ok(-f "$tempdir/$pred{text}", "pod2text worked");
+    ok(-f "$tempdir/$pred{man}", "pod2man worked");
+    ok(-f "$tempdir/$pred{html}", "pod2html worked");
+
+    # test that html title tag was set
+    like(stringify("$tempdir/$pred{html}"), 
+        qr{<title>This\sis\sthe\sHTML\stitle</title>},
+       "HTML title tag located");
 }
 
 #sub stringify {

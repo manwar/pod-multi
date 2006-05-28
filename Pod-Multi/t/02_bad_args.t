@@ -22,7 +22,7 @@ my $stub = "$name$suffix";
 my %pred = (
     text    => "$name.txt",
     man     => "$name.1",
-#    html    => "$name.html",
+    html    => "$name.html",
 );
 
 {
