@@ -2,8 +2,8 @@
 use strict;
 use warnings;
 use Test::More 
-# tests => 13;
-qw(no_plan);
+tests => 13;
+# qw(no_plan);
 use lib( "t/lib" );
 use Pod::Multi::Auxiliary qw( stringify );
 
@@ -21,8 +21,7 @@ my $pod = "$cwd/t/lib/s1.pod";
 ok(-f $pod, "pod sample file located");
 my ($name, $path, $suffix) = fileparse($pod, qr{\.pod});
 my $stub = "$name$suffix";
-my @htmltitle = qw( This is the HTML title );
-my $htmltitle = join q{ }, @htmltitle;
+my $htmltitle = q(This is the HTML title);
 my %pred = (
     text    => "$name.txt",
     man     => "$name.1",
@@ -36,8 +35,14 @@ my %pred = (
     copy ($pod, $testpod) or croak "Unable to copy $pod";
     ok(-f $testpod, "sample pod copied for testing");
     
-#    ok(pod2multi($testpod, @htmltitle), "pod2multi completed");
-#    ok(pod2multi($testpod, @htmltitle), "pod2multi completed");
+    ok(pod2multi(
+        source => $testpod, 
+        options => {
+            html => {
+                title   => $htmltitle,
+            },
+        },
+    ), "pod2multi completed");
     ok(-f "$tempdir/$pred{text}", "pod2text worked");
     ok(-f "$tempdir/$pred{man}", "pod2man worked");
     ok(-f "$tempdir/$pred{html}", "pod2html worked");

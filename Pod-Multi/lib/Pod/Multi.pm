@@ -16,9 +16,28 @@ use File::Basename;
 use Data::Dumper;
 
 sub pod2multi {
-    croak "Must supply name of file containing POD" unless @_;
-    my $pod = shift(@_);
-    croak "File $pod with pod not located" unless -f $pod;
+    croak "Must supply even number of arguments:  list of key-value pairs"
+        if @_ % 2;
+    my %args = @_;
+    croak "Must supply source file with pod"
+        unless (exists $args{source} and -f $args{source});
+
+    my $pod = $args{source};
+    my @text_and_man = qw(text man);
+    my @all_formats_accepted = (@text_and_man, q{html});
+
+    my %params;
+    if (exists $args{options}) {
+        croak "Options must be supplied in a hash ref"
+            unless ref($args{options}) eq 'HASH';
+        %params = %{$args{options}};
+        for my $f (@all_formats_accepted) {
+            if (exists $params{$f}) {
+                croak "Value of option $f must be a hash ref"
+                    unless ref($params{$f}) eq 'HASH';
+            }
+        }
+    }
     my ($basename, $path, $suffix) 
         = fileparse($pod, ( qr/\.pm/, qr/\.pl/, qr/\.pod/ ) );
     my $manext;
@@ -32,30 +51,13 @@ sub pod2multi {
         $manext = q{.1};
     }
     
-    my @text_and_man = qw(text man);
-    my @all_formats_accepted = (@text_and_man, q{html});
-
-    my ($argsref, %args);
-    if (defined $_[0]) {
-        $argsref = shift(@_);
-        croak "Options must be supplied in a hash ref"
-            unless ref($argsref) eq 'HASH';
-        %args = %{$argsref};
-        for my $f (@all_formats_accepted) {
-            if (exists $args{$f}) {
-                croak "Value of option $f must be a hash ref"
-                    unless ref($args{$f} eq 'HASH');
-            }
-        }
-    }
-
     my %options;
     # For text and man, the only things which need special attention are the 
     # directory, file name and extension;
     # everything else in %options is passed directly to the underlying
     # function.
     for my $f (@text_and_man) {
-        $options{$f} = exists $args{$f} ? $args{$f} : {};
+        $options{$f} = exists $params{$f} ? $params{$f} : {};
     }
     
     my %outputpaths;
@@ -67,24 +69,28 @@ sub pod2multi {
 
     # text
     my $tparser = Pod::Text->new(%{$options{text}});
-    $tparser->parse_from_file($pod, "$outputpaths{text}/$basename.txt");
+    $tparser->parse_from_file(
+        $pod, "$outputpaths{text}/$basename.txt"
+    );
 
     # man
     my $mparser = Pod::Man->new(%{$options{man}});
-    $mparser->parse_from_file($pod, "$outputpaths{man}/$basename$manext");
+    $mparser->parse_from_file(
+        $pod, "$outputpaths{man}/$basename$manext"
+    );
 
     # html
-    # html works differently.  We first compose a title if one has not been
-    # supplied.
-    my @htmlargs;
+    # html works differently.  We first populate %options.
     $options{html}{infile} = $pod
-        unless defined $options{html}{infile};
+        unless defined $params{html}{infile};
     $options{html}{outfile} = "$path$basename.html" 
-        unless defined $options{html}{outfile};
-    $options{html}{title} = $basename 
-        unless defined $options{html}{title};
+        unless defined $params{html}{outfile};
+    $options{html}{title} = defined $params{html}{title}
+        ? $params{html}{title}
+        : $basename;
     # Then we compose the long-options-style string to be passed to the
     # underlying function.
+    my @htmlargs;
     foreach my $htmlopt (keys %{$options{html}}) {
         push @htmlargs, "--${htmlopt}=$options{html}{$htmlopt}";
     }
@@ -358,3 +364,4 @@ __END__
 # print STDERR Dumper $pod;
 # print STDERR Dumper $options{html};
 # print STDERR Dumper \@htmlargs;
+# print STDERR "f:  $f\tref:  ", ref($params{$f}), "\n";

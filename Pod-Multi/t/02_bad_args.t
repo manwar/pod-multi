@@ -32,8 +32,32 @@ my %pred = (
     copy ($pod, $testpod) or croak "Unable to copy $pod";
     ok(-f $testpod, "sample pod copied for testing");
     
-    eval { pod2multi(); };
-    like($@, qr{^Must supply name of file containing POD},
-        "pod2multi correctly failed due to lack of input file");
+    eval { pod2multi( source => $testpod, q{options}); };
+    like($@, qr{^Must supply even number of arguments},
+        "pod2multi correctly failed due to odd number of arguments");
+}
+
+{
+    my $tempdir = tempdir( CLEANUP => 1 );
+    chdir $tempdir or croak "Unable to change to $tempdir";
+    my $testpod = "$tempdir/$stub";
+    copy ($pod, $testpod) or croak "Unable to copy $pod";
+    ok(-f $testpod, "sample pod copied for testing");
+    
+    eval { pod2multi( options => {} ); };
+    like($@, qr{^Must supply source file with pod},
+        "pod2multi correctly failed due to lack of 'source' key-value pair");
+}
+
+{
+    my $tempdir = tempdir( CLEANUP => 1 );
+    chdir $tempdir or croak "Unable to change to $tempdir";
+    my $testpod = "$tempdir/$stub";
+    copy ($pod, $testpod) or croak "Unable to copy $pod";
+    ok(-f $testpod, "sample pod copied for testing");
+    
+    eval { pod2multi( source => 'phonyfile', options => {} ); };
+    like($@, qr{^Must supply source file with pod},
+        "pod2multi correctly failed due to non-existent source file");
 }
 

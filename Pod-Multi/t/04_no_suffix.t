@@ -2,8 +2,8 @@
 use strict;
 use warnings;
 use Test::More 
-# tests => 12;
-qw(no_plan);
+tests => 12;
+# qw(no_plan);
 
 BEGIN {
     use_ok( 'Pod::Multi' );
@@ -32,7 +32,7 @@ my %pred = (
     copy ($pod, $testpod) or croak "Unable to copy $pod";
     ok(-f $testpod, "sample pod copied for testing");
     
-    ok(pod2multi($testpod), "pod2multi completed");
+    ok(pod2multi( source => $testpod ), "pod2multi completed");
     ok(-f "$tempdir/$pred{text}", "pod2text worked");
     ok(-f "$tempdir/$pred{man}", "pod2man worked");
     ok(-f "$tempdir/$pred{html}", "pod2html worked");
