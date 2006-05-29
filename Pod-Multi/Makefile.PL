@@ -10,5 +10,6 @@ WriteMakefile(
     ABSTRACT     => 'pod2man, pod2text, pod2html simultaneously',
     PREREQ_PM    => {
                      'Test::Simple' => 0.44,
+                     'IO::Capture' => 0.05,
                     },
 );

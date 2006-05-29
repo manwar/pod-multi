@@ -62,21 +62,32 @@ sub pod2multi {
     
     my %outputpaths;
     for my $f (@text_and_man) {
-        $outputpaths{$f} = 
-            (exists $options{$f}{outputpath} and -f $options{$f}{outputpath})
-            ? $options{$f}{outputpath} : $path; 
+#        $outputpaths{$f} = 
+#            (exists $options{$f}{outputpath} and -d $options{$f}{outputpath})
+#            ? $options{$f}{outputpath} : $path; 
+        if (exists $options{$f}{outputpath}) {
+            if (-d $options{$f}{outputpath}) {
+                $outputpaths{$f} = $options{$f}{outputpath}; 
+            } else {
+                warn "$options{$f}{outputpath} is not a valid directory; reverting to $path";
+                $outputpaths{$f} = $path;
+            }
+        } else {
+            $outputpaths{$f} = $path;
+        }
+        $outputpaths{$f} .= q{/} if $outputpaths{$f} !~ m{/$}; 
     }
 
     # text
     my $tparser = Pod::Text->new(%{$options{text}});
     $tparser->parse_from_file(
-        $pod, "$outputpaths{text}/$basename.txt"
+        $pod, "$outputpaths{text}$basename.txt"
     );
 
     # man
     my $mparser = Pod::Man->new(%{$options{man}});
     $mparser->parse_from_file(
-        $pod, "$outputpaths{man}/$basename$manext"
+        $pod, "$outputpaths{man}$basename$manext"
     );
 
     # html
@@ -131,13 +142,13 @@ or:
         text     => {
             sentence    =>  0,
             width       => 78,
-            outputpath  => "/outputpath/for/man/",
+            outputpath  => "/outputpath/for/text/",
             ...
         },
         man     => {
             manoption1  => 'manvalue1',
             manoption2  => 'manvalue2',
-            outputpath  => "/outputpath/for/text/",
+            outputpath  => "/outputpath/for/man/",
             ...
         },
         html     => {

@@ -53,12 +53,3 @@ my %pred = (
        "HTML title tag located");
 }
 
-#sub stringify {
-#    my $output = shift;
-#    local $/;
-#    open my $FH, $output or croak "Unable to open $output";
-#    my $str = <$FH>;
-#    close $FH or croak "Unable to close $output";
-#    return $str;
-#}
-#

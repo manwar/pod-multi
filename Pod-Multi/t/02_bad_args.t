@@ -2,8 +2,8 @@
 use strict;
 use warnings;
 use Test::More 
-# tests => 9;
-qw(no_plan);
+tests => 17;
+# qw(no_plan);
 
 BEGIN {
     use_ok( 'Pod::Multi' );
@@ -59,5 +59,36 @@ my %pred = (
     eval { pod2multi( source => 'phonyfile', options => {} ); };
     like($@, qr{^Must supply source file with pod},
         "pod2multi correctly failed due to non-existent source file");
+}
+
+{
+    my $tempdir = tempdir( CLEANUP => 1 );
+    chdir $tempdir or croak "Unable to change to $tempdir";
+    my $testpod = "$tempdir/$stub";
+    copy ($pod, $testpod) or croak "Unable to copy $pod";
+    ok(-f $testpod, "sample pod copied for testing");
+    
+    eval { pod2multi( source => $testpod, options => [] ); };
+    like($@, qr{^Options must be supplied in a hash ref},
+        "pod2multi correctly failed due to options in wrong ref");
+}
+
+{
+    my $tempdir = tempdir( CLEANUP => 1 );
+    chdir $tempdir or croak "Unable to change to $tempdir";
+    my $testpod = "$tempdir/$stub";
+    copy ($pod, $testpod) or croak "Unable to copy $pod";
+    ok(-f $testpod, "sample pod copied for testing");
+    
+    eval { pod2multi(
+        source => $testpod, 
+        options => {
+            html => [
+                title   => q{This is the HTML title},
+            ],
+        },
+    ) };
+    like($@, qr{^Value of option html must be a hash ref},
+        "pod2multi correctly failed due to options in wrong ref");
 }
 
