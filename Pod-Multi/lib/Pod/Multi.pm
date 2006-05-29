@@ -92,6 +92,7 @@ sub pod2multi {
 
     # html
     # html works differently.  We first populate %options.
+    %{$options{html}} = defined $params{html} ?  %{$params{html}} : ();
     $options{html}{infile} = $pod
         unless defined $params{html}{infile};
     $options{html}{outfile} = "$path$basename.html" 

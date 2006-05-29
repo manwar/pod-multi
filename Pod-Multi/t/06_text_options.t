@@ -2,8 +2,8 @@
 use strict;
 use warnings;
 use Test::More 
-# tests => 13;
-qw(no_plan);
+tests => 57;
+# qw(no_plan);
 use lib( "t/lib" );
 use Pod::Multi::Auxiliary qw( stringify );
 
