@@ -5,7 +5,7 @@ use strict;
 use warnings;
 use Exporter ();
 our ($VERSION, @ISA, @EXPORT);
-$VERSION     = 0.02;
+$VERSION     = 0.03;
 @ISA         = qw( Exporter );
 @EXPORT      = qw( pod2multi );
 use Pod::Text;
