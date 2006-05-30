@@ -13,7 +13,6 @@ use Pod::Man;
 use Pod::HTML;
 use Carp;
 use File::Basename;
-use Data::Dumper;
 
 sub pod2multi {
     croak "Must supply even number of arguments:  list of key-value pairs"
