@@ -10,7 +10,7 @@ $VERSION     = 0.03;
 @EXPORT      = qw( pod2multi );
 use Pod::Text;
 use Pod::Man;
-use Pod::HTML;
+use Pod::Html;
 use Carp;
 use File::Basename;
 
