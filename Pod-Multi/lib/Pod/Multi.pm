@@ -55,18 +55,34 @@ sub pod2multi {
     # defaults file.  Those values will be overriden with any defined in a 
     # Perl script and passed to pod2multi() as arguments.
 
-    print STDERR Dumper \%params;
+    if (defined %params) {
+        foreach my $outputformat (keys %params) {
+            croak "Value of personal defaults option $outputformat must be a hash ref"
+            unless ref($params{$outputformat}) eq 'HASH';
+        }
+    }
+
     if (exists $args{options}) {
         croak "Options must be supplied in a hash ref"
             unless ref($args{options}) eq 'HASH';
-        %params = %{$args{options}};
-        for my $f (@all_formats_accepted) {
-            if (exists $params{$f}) {
-                croak "Value of option $f must be a hash ref"
-                    unless ref($params{$f}) eq 'HASH';
+        my %ao = %{$args{options}};
+        for my $outputmode (keys %ao) {
+            croak "Value of option $outputmode must be a hash ref"
+                unless ref($ao{$outputmode}) eq 'HASH';
+            my %attr = %{$ao{$outputmode}};
+            for my $attribute (keys %attr) {
+                $params{$outputmode}{$attribute} = $attr{$attribute};
             }
         }
+        # Need to move this test up
+#        for my $f (@all_formats_accepted) {
+#            if (exists $params{$f}) {
+#                croak "Value of option $f must be a hash ref"
+#                    unless ref($params{$f}) eq 'HASH';
+#            }
+#        }
     }
+
     my ($basename, $path, $suffix) 
         = fileparse($pod, ( qr/\.pm/, qr/\.pl/, qr/\.pod/ ) );
     my $manext;
@@ -118,9 +134,13 @@ sub pod2multi {
 
     # html
     # html works differently.  We first populate %options.
+    if (defined $params{html}{infile}) {
+        croak "You cannot define a source file for the HTML output different from that of the text and man outputs";
+    }
     %{$options{html}} = defined $params{html} ?  %{$params{html}} : ();
-    $options{html}{infile} = $pod
-        unless defined $params{html}{infile};
+#    $options{html}{infile} = $pod
+#        unless defined $params{html}{infile};
+    $options{html}{infile} = $pod;
     $options{html}{outfile} = "$path$basename.html" 
         unless defined $params{html}{outfile};
     $options{html}{title} = defined $params{html}{title}

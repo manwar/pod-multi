@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use Test::More 
-tests => 26;
+tests => 23;
 # qw(no_plan);
 use lib( "t/lib" );
 use Pod::Multi::Auxiliary qw( stringify );
@@ -90,16 +90,17 @@ my %pred = (
     my $newtestpod = "$tempdir/$secondary_dir/$stub";
     copy ($testpod, $newtestpod) or croak "Unable to copy $testpod";
     ok(-f $newtestpod, "sample pod copied again for testing");
-    ok(pod2multi(
-        source => $testpod, 
-        options => {
-            html => {
-                infile => $newtestpod,
+    eval {
+        pod2multi(
+            source => $testpod, 
+            options => {
+                html => {
+                    infile => $newtestpod,
+                },
             },
-        },
-    ), "pod2multi completed");
-    ok(-f "$tempdir/$pred{text}", "pod2text worked");
-    ok(-f "$tempdir/$pred{man}", "pod2man worked");
-    ok(-f "$tempdir/$pred{html}", "pod2html worked");
+        );
+    };
+    like($@, qr{^You cannot define a source file for the HTML output different from that of the text and man output},
+        "attempt to use 'infile' key for HTML output correctly failed");
 }
 

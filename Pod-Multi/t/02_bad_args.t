@@ -2,8 +2,8 @@
 use strict;
 use warnings;
 use Test::More 
-tests => 17;
-# qw(no_plan);
+# tests => 17;
+qw(no_plan);
 
 BEGIN {
     use_ok( 'Pod::Multi' );
@@ -56,6 +56,21 @@ my %pred = (
     copy ($pod, $testpod) or croak "Unable to copy $pod";
     ok(-f $testpod, "sample pod copied for testing");
     
+TODO: {
+  local $TODO = "Test will need alternate (defective) personal defaults file during testing";
+    eval { pod2multi( source => $testpod ); };
+    like($@, qr{^Value of personal defaults option},
+        "pod2multi correctly failed due bad format in personal defaults file");
+}
+}
+
+{
+    my $tempdir = tempdir( CLEANUP => 1 );
+    chdir $tempdir or croak "Unable to change to $tempdir";
+    my $testpod = "$tempdir/$stub";
+    copy ($pod, $testpod) or croak "Unable to copy $pod";
+    ok(-f $testpod, "sample pod copied for testing");
+    
     eval { pod2multi( source => 'phonyfile', options => {} ); };
     like($@, qr{^Must supply source file with pod},
         "pod2multi correctly failed due to non-existent source file");
@@ -80,6 +95,7 @@ my %pred = (
     copy ($pod, $testpod) or croak "Unable to copy $pod";
     ok(-f $testpod, "sample pod copied for testing");
     
+#print STDERR "Got this far\n";
     eval { pod2multi(
         source => $testpod, 
         options => {
