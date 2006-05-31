@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use Test::More 
-tests => 57;
+tests => 63;
 # qw(no_plan);
 use lib( "t/lib" );
 use Pod::Multi::Auxiliary qw( stringify );
@@ -58,6 +58,7 @@ my %pred = (
             last;
         }
     }
+    close $FH or croak "Unable to close handle";
     ok(! $overcount, "no line exceeded maximum requested");
 }
 
@@ -90,7 +91,40 @@ my %pred = (
             last;
         }
     }
+    close $FH or croak "Unable to close handle";
     ok(! $overcount, "each line had left margin requested");
+}
+
+{
+    my $tempdir = tempdir( CLEANUP => 1 );
+    chdir $tempdir or croak "Unable to change to $tempdir";
+    my $testpod = "$tempdir/$stub";
+    copy ($pod, $testpod) or croak "Unable to copy $pod";
+    ok(-f $testpod, "sample pod copied for testing");
+    
+    ok(pod2multi(
+        source => $testpod, 
+        options => {
+            text => {
+                alt => 1,
+            },
+        },
+    ), "pod2multi completed");
+    ok(-f "$tempdir/$pred{text}", "pod2text worked");
+    ok(-f "$tempdir/$pred{man}", "pod2man worked");
+    ok(-f "$tempdir/$pred{html}", "pod2html worked");
+
+    open my $FH, "$tempdir/$pred{text}" or croak "Unable to open output";
+    my $seen = 0;
+    while (<$FH>) {
+        chomp;
+        if (/^:\s+\* Bullet Point One/) {
+            $seen++;
+            last;
+        }
+    }
+    close $FH or croak "Unable to close handle";
+    ok($seen, "alternate format detected via different regex");
 }
 
 {
@@ -121,6 +155,7 @@ my %pred = (
             last;
         }
     }
+    close $FH or croak "Unable to close handle";
     ok($seen, "alternate format detected");
 }
 
@@ -241,6 +276,7 @@ $htmltitle = q(This is the HTML title);
             last;
         }
     }
+    close $FH or croak "Unable to close handle";
     ok(! $seen, "code option worked as intended");
 }
 
@@ -272,6 +308,7 @@ $htmltitle = q(This is the HTML title);
             last;
         }
     }
+    close $FH or croak "Unable to close handle";
     ok($seen, "code option worked as intended:  code printed");
 }
 
