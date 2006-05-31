@@ -13,6 +13,13 @@ use Pod::Man;
 use Pod::Html;
 use Carp;
 use File::Basename;
+use File::Path;
+use File::Spec;
+use File::Save::Home qw(
+    get_subhome_directory_status
+    make_subhome_directory
+);
+use Data::Dumper;
 
 sub pod2multi {
     croak "Must supply even number of arguments:  list of key-value pairs"
@@ -25,7 +32,30 @@ sub pod2multi {
     my @text_and_man = qw(text man);
     my @all_formats_accepted = (@text_and_man, q{html});
 
-    my %params;
+    # to pull in any %params defined in 
+    # .pod2multi/Pod/Multi/Personal/Defaults.pm
+    our %params;  
+    my $pod2multi_dir_ref;
+    $pod2multi_dir_ref =  get_subhome_directory_status(".pod2multi");
+    {
+        my $pod2multi_dir = $pod2multi_dir_ref->{abs};
+        if (defined $pod2multi_dir_ref->{flag}) {
+            push @INC, $pod2multi_dir;
+        }
+        my $pers_file = File::Spec->catfile( $pod2multi_dir,
+            qw| Pod Multi Personal Defaults.pm |
+        );
+        if (-f $pers_file) {
+            require Pod::Multi::Personal::Defaults;
+            unshift @ISA, qw(Pod::Multi::Personal::Defaults);
+        }
+    }
+    # At this point, if the personal defaults file exists, %params 
+    # should be populated with any values defined in the %params in that 
+    # defaults file.  Those values will be overriden with any defined in a 
+    # Perl script and passed to pod2multi() as arguments.
+
+    print STDERR Dumper \%params;
     if (exists $args{options}) {
         croak "Options must be supplied in a hash ref"
             unless ref($args{options}) eq 'HASH';
@@ -61,9 +91,6 @@ sub pod2multi {
     
     my %outputpaths;
     for my $f (@text_and_man) {
-#        $outputpaths{$f} = 
-#            (exists $options{$f}{outputpath} and -d $options{$f}{outputpath})
-#            ? $options{$f}{outputpath} : $path; 
         if (exists $options{$f}{outputpath}) {
             if (-d $options{$f}{outputpath}) {
                 $outputpaths{$f} = $options{$f}{outputpath}; 
@@ -353,6 +380,13 @@ Contact author at his cpan [dot] org address below.
     CPAN ID: JKEENAN
     jkeenan@cpan.org
     http://search.cpan.org/~jkeenan/
+
+=head1 ACKNOWLEDGEMENTS
+
+Steven Lembark made the suggestion about submitting all modules needed to a
+C<use_ok> at the start of the very first test.
+
+David H Adler assisted with debugging.
 
 =head1 COPYRIGHT
 

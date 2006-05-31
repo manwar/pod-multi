@@ -2,16 +2,21 @@
 use strict;
 use warnings;
 use Test::More 
-tests => 12;
-# qw(no_plan);
+# tests => 12;
+qw(no_plan);
 
 BEGIN {
     use_ok( 'Pod::Multi' );
+    use_ok( 'Pod::Text' );
+    use_ok( 'Pod::Man' );
+    use_ok( 'Pod::Html' );
     use_ok( 'File::Temp', qw| tempdir | );
     use_ok( 'File::Copy' );
     use_ok( 'File::Basename' );
+    use_ok( 'File::Save::Home' );
     use_ok( 'Carp' );
     use_ok( 'Cwd' );
+    use_ok( 'IO::Capture' );
 }
 
 my $cwd = cwd();
