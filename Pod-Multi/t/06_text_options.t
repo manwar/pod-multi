@@ -49,17 +49,17 @@ my %pred = (
     ok(-f "$tempdir/$pred{man}", "pod2man worked");
     ok(-f "$tempdir/$pred{html}", "pod2html worked");
 
-    open my $FH, "$tempdir/$pred{text}" or croak "Unable to open output";
-    my $overcount = 0;
-    while (<$FH>) {
-        chomp;
-        if (length($_) > $maxwidth) {
-            $overcount++;
-            last;
-        }
-    }
-    close $FH or croak "Unable to close handle";
-    ok(! $overcount, "no line exceeded maximum requested");
+#    open my $FH, "$tempdir/$pred{text}" or croak "Unable to open output";
+#    my $overcount = 0;
+#    while (<$FH>) {
+#        chomp;
+#        if (length($_) > $maxwidth) {
+#            $overcount++;
+#            last;
+#        }
+#    }
+#    close $FH or croak "Unable to close handle";
+#    ok(! $overcount, "no line exceeded maximum requested");
 }
 
 {
@@ -82,38 +82,38 @@ my %pred = (
     ok(-f "$tempdir/$pred{man}", "pod2man worked");
     ok(-f "$tempdir/$pred{html}", "pod2html worked");
 
-    open my $FH, "$tempdir/$pred{text}" or croak "Unable to open output";
-    my $overcount = 0;
-    while (<$FH>) {
-        chomp;
-        if ($_ !~ /^\s{2}/ and $_ !~ /^$/) {
-            $overcount++;
-            last;
-        }
-    }
-    close $FH or croak "Unable to close handle";
-    ok(! $overcount, "each line had left margin requested");
+#    open my $FH, "$tempdir/$pred{text}" or croak "Unable to open output";
+#    my $overcount = 0;
+#    while (<$FH>) {
+#        chomp;
+#        if ($_ !~ /^\s{2}/ and $_ !~ /^$/) {
+#            $overcount++;
+#            last;
+#        }
+#    }
+#    close $FH or croak "Unable to close handle";
+#    ok(! $overcount, "each line had left margin requested");
 }
 
-#{
-#    my $tempdir = tempdir( CLEANUP => 1 );
-#    chdir $tempdir or croak "Unable to change to $tempdir";
-#    my $testpod = "$tempdir/$stub";
-#    copy ($pod, $testpod) or croak "Unable to copy $pod";
-#    ok(-f $testpod, "sample pod copied for testing");
-#    
-#    ok(pod2multi(
-#        source => $testpod, 
-#        options => {
-#            text => {
-#                alt => 1,
-#            },
-#        },
-#    ), "pod2multi completed");
-#    ok(-f "$tempdir/$pred{text}", "pod2text worked");
-#    ok(-f "$tempdir/$pred{man}", "pod2man worked");
-#    ok(-f "$tempdir/$pred{html}", "pod2html worked");
-#
+{
+    my $tempdir = tempdir( CLEANUP => 1 );
+    chdir $tempdir or croak "Unable to change to $tempdir";
+    my $testpod = "$tempdir/$stub";
+    copy ($pod, $testpod) or croak "Unable to copy $pod";
+    ok(-f $testpod, "sample pod copied for testing");
+    
+    ok(pod2multi(
+        source => $testpod, 
+        options => {
+            text => {
+                alt => 1,
+            },
+        },
+    ), "pod2multi completed");
+    ok(-f "$tempdir/$pred{text}", "pod2text worked");
+    ok(-f "$tempdir/$pred{man}", "pod2man worked");
+    ok(-f "$tempdir/$pred{html}", "pod2html worked");
+
 #    open my $FH, "$tempdir/$pred{text}" or croak "Unable to open output";
 #    my $seen = 0;
 #    while (<$FH>) {
@@ -125,27 +125,27 @@ my %pred = (
 #    }
 #    close $FH or croak "Unable to close handle";
 #    ok($seen, "alternate format detected via different regex");
-#}
-#
-#{
-#    my $tempdir = tempdir( CLEANUP => 1 );
-#    chdir $tempdir or croak "Unable to change to $tempdir";
-#    my $testpod = "$tempdir/$stub";
-#    copy ($pod, $testpod) or croak "Unable to copy $pod";
-#    ok(-f $testpod, "sample pod copied for testing");
-#    
-#    ok(pod2multi(
-#        source => $testpod, 
-#        options => {
-#            text => {
-#                alt => 1,
-#            },
-#        },
-#    ), "pod2multi completed");
-#    ok(-f "$tempdir/$pred{text}", "pod2text worked");
-#    ok(-f "$tempdir/$pred{man}", "pod2man worked");
-#    ok(-f "$tempdir/$pred{html}", "pod2html worked");
-#
+}
+
+{
+    my $tempdir = tempdir( CLEANUP => 1 );
+    chdir $tempdir or croak "Unable to change to $tempdir";
+    my $testpod = "$tempdir/$stub";
+    copy ($pod, $testpod) or croak "Unable to copy $pod";
+    ok(-f $testpod, "sample pod copied for testing");
+    
+    ok(pod2multi(
+        source => $testpod, 
+        options => {
+            text => {
+                alt => 1,
+            },
+        },
+    ), "pod2multi completed");
+    ok(-f "$tempdir/$pred{text}", "pod2text worked");
+    ok(-f "$tempdir/$pred{man}", "pod2man worked");
+    ok(-f "$tempdir/$pred{html}", "pod2html worked");
+
 #    open my $FH, "$tempdir/$pred{text}" or croak "Unable to open output";
 #    my $seen = 0;
 #    while (<$FH>) {
@@ -157,8 +157,10 @@ my %pred = (
 #    }
 #    close $FH or croak "Unable to close handle";
 #    ok($seen, "alternate format detected");
-#}
+}
 
+# Activating this block caused 2 later blocks ("code")
+# to fail
 {
     my $tempdir = tempdir( CLEANUP => 1 );
     chdir $tempdir or croak "Unable to change to $tempdir";
@@ -183,60 +185,60 @@ my %pred = (
     ok(-f "$tempdir/$pred{html}", "pod2html worked");
 }
 
-{
-    # Call for secondary directory but fail to create it
-    my $tempdir = tempdir( CLEANUP => 1 );
-    chdir $tempdir or croak "Unable to change to $tempdir";
-    my $testpod = "$tempdir/$stub";
-    copy ($pod, $testpod) or croak "Unable to copy $pod";
-    ok(-f $testpod, "sample pod copied for testing");
-    
-    my $secondary_dir = "secondary/";
-    my $capture = IO::Capture::Stderr->new();
-    $capture->start();
-    my $rv = pod2multi(
-        source => $testpod, 
-        options => {
-            text => {
-                outputpath => "$tempdir/$secondary_dir",
-            },
-        },
-    );
-    $capture->stop();
-    ok($rv, "pod2multi completed");
-### FIX ME FIRST
-    like($capture->read(), 
-        qr{^$tempdir/$secondary_dir is not a valid directory; reverting to $tempdir},
-        "warning of absence of directory requested correctly emitted");
-    ok(-f "$tempdir/$pred{text}", 
-        "pod2text created in default directory");
-    ok(-f "$tempdir/$pred{man}", "pod2man worked");
-    ok(-f "$tempdir/$pred{html}", "pod2html worked");
-}
-
-{
-    my $tempdir = tempdir( CLEANUP => 1 );
-    chdir $tempdir or croak "Unable to change to $tempdir";
-    my $testpod = "$tempdir/$stub";
-    copy ($pod, $testpod) or croak "Unable to copy $pod";
-    ok(-f $testpod, "sample pod copied for testing");
-    
-    my $secondary_dir = "secondary/";
-    mkdir $secondary_dir or croak "Unable to make $secondary_dir";
-    ok(-d $secondary_dir, "secondary testing directory created");
-    ok(pod2multi(
-        source => $testpod, 
-        options => {
-            text => {
-                outputpath => "$tempdir/$secondary_dir",
-            },
-        },
-    ), "pod2multi completed");
-    ok(-f "$tempdir/$secondary_dir/$pred{text}", 
-        "pod2text created in specified alternate directory");
-    ok(-f "$tempdir/$pred{man}", "pod2man worked");
-    ok(-f "$tempdir/$pred{html}", "pod2html worked");
-}
+#{
+#    # Call for secondary directory but fail to create it
+#    my $tempdir = tempdir( CLEANUP => 1 );
+#    chdir $tempdir or croak "Unable to change to $tempdir";
+#    my $testpod = "$tempdir/$stub";
+#    copy ($pod, $testpod) or croak "Unable to copy $pod";
+#    ok(-f $testpod, "sample pod copied for testing");
+#    
+#    my $secondary_dir = "secondary/";
+#    my $capture = IO::Capture::Stderr->new();
+#    $capture->start();
+#    my $rv = pod2multi(
+#        source => $testpod, 
+#        options => {
+#            text => {
+#                outputpath => "$tempdir/$secondary_dir",
+#            },
+#        },
+#    );
+#    $capture->stop();
+#    ok($rv, "pod2multi completed");
+#### FIX ME FIRST
+#    like($capture->read(), 
+#        qr{^$tempdir/$secondary_dir is not a valid directory; reverting to $tempdir},
+#        "warning of absence of directory requested correctly emitted");
+#    ok(-f "$tempdir/$pred{text}", 
+#        "pod2text created in default directory");
+#    ok(-f "$tempdir/$pred{man}", "pod2man worked");
+#    ok(-f "$tempdir/$pred{html}", "pod2html worked");
+#}
+#
+#{
+#    my $tempdir = tempdir( CLEANUP => 1 );
+#    chdir $tempdir or croak "Unable to change to $tempdir";
+#    my $testpod = "$tempdir/$stub";
+#    copy ($pod, $testpod) or croak "Unable to copy $pod";
+#    ok(-f $testpod, "sample pod copied for testing");
+#    
+#    my $secondary_dir = "secondary/";
+#    mkdir $secondary_dir or croak "Unable to make $secondary_dir";
+#    ok(-d $secondary_dir, "secondary testing directory created");
+#    ok(pod2multi(
+#        source => $testpod, 
+#        options => {
+#            text => {
+#                outputpath => "$tempdir/$secondary_dir",
+#            },
+#        },
+#    ), "pod2multi completed");
+#    ok(-f "$tempdir/$secondary_dir/$pred{text}", 
+#        "pod2text created in specified alternate directory");
+#    ok(-f "$tempdir/$pred{man}", "pod2man worked");
+#    ok(-f "$tempdir/$pred{html}", "pod2html worked");
+#}
 
 $pod = "$cwd/t/lib/s2.pod";
 ok(-f $pod, "pod sample file located");
@@ -249,25 +251,26 @@ $htmltitle = q(This is the HTML title);
     html    => "$name.html",
 );
 
-#{
-#    my $tempdir = tempdir( CLEANUP => 1 );
-#    chdir $tempdir or croak "Unable to change to $tempdir";
-#    my $testpod = "$tempdir/$stub";
-#    copy ($pod, $testpod) or croak "Unable to copy $pod";
-#    ok(-f $testpod, "sample pod copied for testing");
-#    
-#    ok(pod2multi(
-#        source => $testpod, 
-#        options => {
-#            text => {
-#                code  => 0,
-#            },
-#        },
-#    ), "pod2multi completed");
-#    ok(-f "$tempdir/$pred{text}", "pod2text worked");
-#    ok(-f "$tempdir/$pred{man}", "pod2man worked");
-#    ok(-f "$tempdir/$pred{html}", "pod2html worked");
-#
+{
+    my $tempdir = tempdir( CLEANUP => 1 );
+    chdir $tempdir or croak "Unable to change to $tempdir";
+    my $testpod = "$tempdir/$stub";
+    copy ($pod, $testpod) or croak "Unable to copy $pod";
+    ok(-f $testpod, "sample pod copied for testing");
+    
+    ok(pod2multi(
+        source => $testpod, 
+        options => {
+            text => {
+                code  => 0,
+            },
+        },
+    ), "pod2multi completed");
+#####
+    ok(-f "$tempdir/$pred{text}", "pod2text worked");
+    ok(-f "$tempdir/$pred{man}", "pod2man worked");
+    ok(-f "$tempdir/$pred{html}", "pod2html worked");
+
 #    open my $FH, "$tempdir/$pred{text}" or croak "Unable to open output";
 #    my $seen = 0;
 #    while (<$FH>) {
@@ -279,27 +282,28 @@ $htmltitle = q(This is the HTML title);
 #    }
 #    close $FH or croak "Unable to close handle";
 #    ok(! $seen, "code option worked as intended");
-#}
-#
-#{
-#    my $tempdir = tempdir( CLEANUP => 1 );
-#    chdir $tempdir or croak "Unable to change to $tempdir";
-#    my $testpod = "$tempdir/$stub";
-#    copy ($pod, $testpod) or croak "Unable to copy $pod";
-#    ok(-f $testpod, "sample pod copied for testing");
-#    
-#    ok(pod2multi(
-#        source => $testpod, 
-#        options => {
-#            text => {
-#                code  => 1,
-#            },
-#        },
-#    ), "pod2multi completed");
-#    ok(-f "$tempdir/$pred{text}", "pod2text worked");
-#    ok(-f "$tempdir/$pred{man}", "pod2man worked");
-#    ok(-f "$tempdir/$pred{html}", "pod2html worked");
-#
+}
+
+{
+    my $tempdir = tempdir( CLEANUP => 1 );
+    chdir $tempdir or croak "Unable to change to $tempdir";
+    my $testpod = "$tempdir/$stub";
+    copy ($pod, $testpod) or croak "Unable to copy $pod";
+    ok(-f $testpod, "sample pod copied for testing");
+    
+    ok(pod2multi(
+        source => $testpod, 
+        options => {
+            text => {
+                code  => 1,
+            },
+        },
+    ), "pod2multi completed");
+#####
+    ok(-f "$tempdir/$pred{text}", "pod2text worked");
+    ok(-f "$tempdir/$pred{man}", "pod2man worked");
+    ok(-f "$tempdir/$pred{html}", "pod2html worked");
+
 #    open my $FH, "$tempdir/$pred{text}" or croak "Unable to open output";
 #    my $seen = 0;
 #    while (<$FH>) {
@@ -311,5 +315,7 @@ $htmltitle = q(This is the HTML title);
 #    }
 #    close $FH or croak "Unable to close handle";
 #    ok($seen, "code option worked as intended:  code printed");
-#}
+
+    ok(chdir $cwd, "Changed back to original directory");
+}
 

@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use Test::More 
-tests => 12;
+tests => 13;
 # qw(no_plan);
 
 BEGIN {
@@ -36,5 +36,7 @@ my %pred = (
     ok(-f "$tempdir/$pred{text}", "pod2text worked");
     ok(-f "$tempdir/$pred{man}", "pod2man worked");
     ok(-f "$tempdir/$pred{html}", "pod2html worked");
+
+    ok(chdir $cwd, "Changed back to original directory");
 }
 

@@ -62,7 +62,7 @@ sub pod2multi {
         }
     }
 
-print STDERR Dumper \%params;
+# print STDERR Dumper \%params;
 
     if (exists $args{options}) {
         croak "Options must be supplied in a hash ref"
@@ -107,7 +107,7 @@ print STDERR Dumper \%params;
         $options{$f} = exists $params{$f} ? $params{$f} : {};
     }
     
-print STDERR Dumper \%options;
+# print STDERR Dumper \%options;
 
     my %outputpaths;
     for my $f (@text_and_man) {

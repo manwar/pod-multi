@@ -2,8 +2,8 @@
 use strict;
 use warnings;
 use Test::More 
-# tests => 12;
-qw(no_plan);
+tests => 18;
+# qw(no_plan);
 
 BEGIN {
     use_ok( 'Pod::Multi' );
@@ -41,5 +41,7 @@ my %pred = (
     ok(-f "$tempdir/$pred{text}", "pod2text worked");
     ok(-f "$tempdir/$pred{man}", "pod2man worked");
     ok(-f "$tempdir/$pred{html}", "pod2html worked");
+
+    ok(chdir $cwd, "Changed back to original directory");
 }
 

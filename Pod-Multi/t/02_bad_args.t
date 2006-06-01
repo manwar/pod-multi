@@ -2,8 +2,8 @@
 use strict;
 use warnings;
 use Test::More 
-# tests => 17;
-qw(no_plan);
+tests => 20;
+# qw(no_plan);
 
 BEGIN {
     use_ok( 'Pod::Multi' );
@@ -95,7 +95,6 @@ TODO: {
     copy ($pod, $testpod) or croak "Unable to copy $pod";
     ok(-f $testpod, "sample pod copied for testing");
     
-#print STDERR "Got this far\n";
     eval { pod2multi(
         source => $testpod, 
         options => {
@@ -106,5 +105,7 @@ TODO: {
     ) };
     like($@, qr{^Value of option html must be a hash ref},
         "pod2multi correctly failed due to options in wrong ref");
+
+    ok(chdir $cwd, "Changed back to original directory");
 }
 

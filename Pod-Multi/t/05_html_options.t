@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use Test::More 
-tests => 23;
+tests => 24;
 # qw(no_plan);
 use lib( "t/lib" );
 use Pod::Multi::Auxiliary qw( stringify );
@@ -102,5 +102,7 @@ my %pred = (
     };
     like($@, qr{^You cannot define a source file for the HTML output different from that of the text and man output},
         "attempt to use 'infile' key for HTML output correctly failed");
+
+    ok(chdir $cwd, "Changed back to original directory");
 }
 
