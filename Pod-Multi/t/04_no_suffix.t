@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use Test::More 
-tests => 13;
+tests => 22;
 # qw(no_plan);
 
 BEGIN {
@@ -13,6 +13,14 @@ BEGIN {
     use_ok( 'Carp' );
     use_ok( 'Cwd' );
 }
+use lib( "./t/lib" );
+use_ok( 'Pod::Multi::Auxiliary', qw(
+        _save_pretesting_status
+        _restore_pretesting_status
+    )
+);
+
+my $statusref = _save_pretesting_status();
 
 my $cwd = cwd();
 my $pod = "$cwd/t/lib/s4";
@@ -38,5 +46,9 @@ my %pred = (
     ok(-f "$tempdir/$pred{html}", "pod2html worked");
 
     ok(chdir $cwd, "Changed back to original directory");
+}
+
+END {
+    _restore_pretesting_status($statusref);
 }
 

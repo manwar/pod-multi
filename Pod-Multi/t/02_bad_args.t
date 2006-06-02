@@ -13,7 +13,7 @@ BEGIN {
     use_ok( 'Carp' );
     use_ok( 'Cwd' );
 }
-
+use lib( "./t/lib" );
 use_ok( 'Pod::Multi::Auxiliary', qw(
         _save_pretesting_status
         _restore_pretesting_status

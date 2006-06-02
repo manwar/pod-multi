@@ -2,10 +2,8 @@
 use strict;
 use warnings;
 use Test::More 
-tests => 26;
+tests => 35;
 # qw(no_plan);
-use lib( "t/lib" );
-use Pod::Multi::Auxiliary qw( stringify );
 
 BEGIN {
     use_ok( 'Pod::Multi' );
@@ -15,6 +13,15 @@ BEGIN {
     use_ok( 'Carp' );
     use_ok( 'Cwd' );
 }
+use lib( "./t/lib" );
+use_ok( 'Pod::Multi::Auxiliary', qw(
+        stringify
+        _save_pretesting_status
+        _restore_pretesting_status
+    )
+);
+
+my $statusref = _save_pretesting_status();
 
 my $cwd = cwd();
 my $pod = "$cwd/t/lib/s1.pod";
@@ -108,5 +115,9 @@ my %pred = (
         "attempt to use 'infile' key for HTML output correctly failed");
 
     ok(chdir $cwd, "Changed back to original directory");
+}
+
+END {
+    _restore_pretesting_status($statusref);
 }
 

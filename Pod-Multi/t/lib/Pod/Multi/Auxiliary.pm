@@ -5,15 +5,23 @@ use strict;
 use warnings;
 use Exporter ();
 our ($VERSION, @ISA, @EXPORT_OK);
-$VERSION     = 0.03;
+$VERSION     = 0.04;
 @ISA         = qw( Exporter );
 @EXPORT_OK   = qw(
     stringify
     _process_personal_defaults_file 
     _reprocess_personal_defaults_file 
     _save_pretesting_status
+    _restore_pretesting_status
 ); 
 use Carp;
+use Cwd;
+use File::Save::Home qw|
+        get_home_directory
+        get_subhome_directory_status
+        make_subhome_directory
+        restore_subhome_directory_status
+|;
 *ok = *Test::More::ok;
 
 sub stringify {

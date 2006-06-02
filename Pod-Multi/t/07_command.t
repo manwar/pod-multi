@@ -2,10 +2,8 @@
 use strict;
 use warnings;
 use Test::More 
-tests => 21;
+tests => 30;
 # qw(no_plan);
-use lib( "t/lib" );
-use Pod::Multi::Auxiliary qw( stringify );
 
 BEGIN {
     use_ok( 'Pod::Multi' );
@@ -16,6 +14,15 @@ BEGIN {
     use_ok( 'Cwd' );
     use_ok( 'IO::Capture::Stderr');
 }
+use lib( "./t/lib" );
+use_ok( 'Pod::Multi::Auxiliary', qw(
+        stringify
+        _save_pretesting_status
+        _restore_pretesting_status
+    )
+);
+
+my $statusref = _save_pretesting_status();
 
 my $cwd = cwd();
 my $pod = "$cwd/t/lib/s1.pod";
@@ -64,5 +71,9 @@ my %pred = (
        "HTML title tag located");
 
     ok(chdir $cwd, "Changed back to original directory");
+}
+
+END {
+    _restore_pretesting_status($statusref);
 }
 

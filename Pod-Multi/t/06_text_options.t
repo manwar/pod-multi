@@ -4,8 +4,6 @@ use warnings;
 use Test::More 
 # tests => 63;
 qw(no_plan);
-use lib( "t/lib" );
-use Pod::Multi::Auxiliary qw( stringify );
 
 BEGIN {
     use_ok( 'Pod::Multi' );
@@ -16,8 +14,17 @@ BEGIN {
     use_ok( 'Cwd' );
     use_ok( 'IO::Capture::Stderr');
     use_ok( 'Pod::Text');
-    use_ok( 'File::Compare', qw| compare_text | );
+    use_ok( 'File::Compare' );
 }
+use lib( "./t/lib" );
+use_ok( 'Pod::Multi::Auxiliary', qw(
+        stringify
+        _save_pretesting_status
+        _restore_pretesting_status
+    )
+);
+
+my $statusref = _save_pretesting_status();
 
 my $cwd = cwd();
 my $pod = "$cwd/t/lib/s1.pod";
@@ -57,10 +64,14 @@ my %pred = (
     my $frominstalled = "$tempdir/installed.txt";
     $parser->parse_from_file($testpod, $frominstalled);
     ok(-f $frominstalled, "text version created from installed Pod::Text");
-    is( compare_text("$tempdir/$pred{text}", $frominstalled), 0,
+    is( compare("$tempdir/$pred{text}", $frominstalled), 0,
         "pod2multi version same as installed version");
 
     ok(chdir $cwd, "Changed back to original directory");
+}
+
+END {
+    _restore_pretesting_status($statusref);
 }
 
 
