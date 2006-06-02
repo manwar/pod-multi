@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use Test::More 
-tests => 24;
+tests => 26;
 # qw(no_plan);
 use lib( "t/lib" );
 use Pod::Multi::Auxiliary qw( stringify );
@@ -51,6 +51,8 @@ my %pred = (
     like(stringify("$tempdir/$pred{html}"), 
         qr{<title>This\sis\sthe\sHTML\stitle</title>},
        "HTML title tag located");
+
+    ok(chdir $cwd, "Changed back to original directory");
 }
 
 {
@@ -75,6 +77,8 @@ my %pred = (
     ok(-f "$tempdir/$pred{text}", "pod2text worked");
     ok(-f "$tempdir/$pred{man}", "pod2man worked");
     ok(-f "$htmlout/$pred{html}", "pod2html worked");
+
+    ok(chdir $cwd, "Changed back to original directory");
 }
 
 {

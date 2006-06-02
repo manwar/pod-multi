@@ -2,8 +2,8 @@
 use strict;
 use warnings;
 use Test::More 
-tests => 20;
-# qw(no_plan);
+# tests => 25;
+qw(no_plan);
 
 BEGIN {
     use_ok( 'Pod::Multi' );
@@ -13,6 +13,14 @@ BEGIN {
     use_ok( 'Carp' );
     use_ok( 'Cwd' );
 }
+
+use_ok( 'Pod::Multi::Auxiliary', qw(
+        _save_pretesting_status
+        _restore_pretesting_status
+    )
+);
+
+my $statusref = _save_pretesting_status();
 
 my $cwd = cwd();
 my $pod = "$cwd/t/lib/s1.pod";
@@ -35,6 +43,8 @@ my %pred = (
     eval { pod2multi( source => $testpod, q{options}); };
     like($@, qr{^Must supply even number of arguments},
         "pod2multi correctly failed due to odd number of arguments");
+
+    ok(chdir $cwd, "Changed back to original directory");
 }
 
 {
@@ -47,6 +57,8 @@ my %pred = (
     eval { pod2multi( options => {} ); };
     like($@, qr{^Must supply source file with pod},
         "pod2multi correctly failed due to lack of 'source' key-value pair");
+
+    ok(chdir $cwd, "Changed back to original directory");
 }
 
 {
@@ -61,7 +73,9 @@ TODO: {
     eval { pod2multi( source => $testpod ); };
     like($@, qr{^Value of personal defaults option},
         "pod2multi correctly failed due bad format in personal defaults file");
-}
+
+    ok(chdir $cwd, "Changed back to original directory");
+  }
 }
 
 {
@@ -74,6 +88,8 @@ TODO: {
     eval { pod2multi( source => 'phonyfile', options => {} ); };
     like($@, qr{^Must supply source file with pod},
         "pod2multi correctly failed due to non-existent source file");
+
+    ok(chdir $cwd, "Changed back to original directory");
 }
 
 {
@@ -86,6 +102,8 @@ TODO: {
     eval { pod2multi( source => $testpod, options => [] ); };
     like($@, qr{^Options must be supplied in a hash ref},
         "pod2multi correctly failed due to options in wrong ref");
+
+    ok(chdir $cwd, "Changed back to original directory");
 }
 
 {
@@ -107,5 +125,9 @@ TODO: {
         "pod2multi correctly failed due to options in wrong ref");
 
     ok(chdir $cwd, "Changed back to original directory");
+}
+
+END {
+    _restore_pretesting_status($statusref);
 }
 

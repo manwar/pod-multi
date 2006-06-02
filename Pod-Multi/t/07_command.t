@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use Test::More 
-tests => 20;
+tests => 21;
 # qw(no_plan);
 use lib( "t/lib" );
 use Pod::Multi::Auxiliary qw( stringify );
@@ -40,6 +40,8 @@ my %pred = (
     ok(-f "$tempdir/$pred{text}", "pod2text worked");
     ok(-f "$tempdir/$pred{man}", "pod2man worked");
     ok(-f "$tempdir/$pred{html}", "pod2html worked");
+
+    ok(chdir $cwd, "Changed back to original directory");
 }
 
 {
