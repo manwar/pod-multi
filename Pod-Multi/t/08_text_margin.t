@@ -1,4 +1,4 @@
-# t/06_text_width.t - check handling of width option for text
+# t/06_text_margin.t - check handling of margin option for text
 use strict;
 use warnings;
 use Test::More 
@@ -45,12 +45,12 @@ my %pred = (
     copy ($pod, $testpod) or croak "Unable to copy $pod";
     ok(-f $testpod, "sample pod copied for testing");
     
-    my $maxwidth = 72;
+    my $margin = 8;
     ok(pod2multi(
         source => $testpod, 
         options => {
             text => {
-                width   => $maxwidth,
+                margin  => $margin,
             },
         },
     ), "pod2multi completed");
@@ -59,17 +59,18 @@ my %pred = (
     ok(-f "$tempdir/$pred{html}", "pod2html worked");
 
     my $parser;
-    ok($parser = Pod::Text->new(width => $maxwidth),
+    ok($parser = Pod::Text->new(margin  => $margin),
         "able to create parser from installed Pod::Text");
     my $frominstalled = "$tempdir/installed.txt";
     $parser->parse_from_file($testpod, $frominstalled);
     ok(-f $frominstalled, "text version created from installed Pod::Text");
     is( compare("$tempdir/$pred{text}", $frominstalled), 0,
         "pod2multi version same as installed version");
-
     ok(chdir $cwd, "Changed back to original directory");
 }
 
 END {
     _restore_pretesting_status($statusref);
 }
+
+
