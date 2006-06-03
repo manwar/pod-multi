@@ -16,7 +16,6 @@ t/07_command.t
 t/08_text_margin.t
 t/09_bad_personal_defaults.t
 t/lib/Pod/Multi/Auxiliary.pm
-t/lib/Pod/Multi/Personal/Defaults.pm
 t/lib/s1.pod
 t/lib/s2.pod
 t/lib/s3.pm

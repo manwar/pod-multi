@@ -5,7 +5,7 @@ use strict;
 use warnings;
 use Exporter ();
 our ($VERSION, @ISA, @EXPORT);
-$VERSION     = 0.04;
+$VERSION     = 0.05;
 @ISA         = qw( Exporter );
 @EXPORT      = qw( pod2multi );
 use Pod::Text;
@@ -16,9 +16,10 @@ use File::Basename;
 use File::Path;
 use File::Spec;
 use File::Save::Home qw(
-    get_subhome_directory_status
-    make_subhome_directory
+    get_home_directory
 );
+#    get_subhome_directory_status
+#    make_subhome_directory
 use Data::Dumper;
 
 sub pod2multi {
@@ -33,23 +34,28 @@ sub pod2multi {
     my @all_formats_accepted = (@text_and_man, q{html});
 
     # to pull in any %params defined in 
-    # .pod2multi/Pod/Multi/Personal/Defaults.pm
+#    # .pod2multi/Pod/Multi/Personal/Defaults.pm
+    # .pod2multirc
     our %params;  
-    my $pod2multi_dir_ref;
-    $pod2multi_dir_ref =  get_subhome_directory_status(".pod2multi");
-    {
-        my $pod2multi_dir = $pod2multi_dir_ref->{abs};
-        if (defined $pod2multi_dir_ref->{flag}) {
-            push @INC, $pod2multi_dir;
-        }
-        my $pers_file = File::Spec->catfile( $pod2multi_dir,
-            qw| Pod Multi Personal Defaults.pm |
-        );
-        if (-f $pers_file) {
-            require Pod::Multi::Personal::Defaults;
-            unshift @ISA, qw(Pod::Multi::Personal::Defaults);
-        }
-    }
+#    my $pod2multi_dir_ref;
+#    $pod2multi_dir_ref =  get_subhome_directory_status(".pod2multi");
+#    {
+#        my $pod2multi_dir = $pod2multi_dir_ref->{abs};
+#        if (defined $pod2multi_dir_ref->{flag}) {
+#            push @INC, $pod2multi_dir;
+#        }
+#        my $pers_file = File::Spec->catfile( $pod2multi_dir,
+#            qw| Pod Multi Personal Defaults.pm |
+#        );
+#        if (-f $pers_file) {
+#            require Pod::Multi::Personal::Defaults;
+#            unshift @ISA, qw(Pod::Multi::Personal::Defaults);
+#        }
+#    }
+    my $homedir = get_home_directory();
+    my $personal_defaults_file = "$homedir/.pod2multirc";
+    require $personal_defaults_file if -f $personal_defaults_file;
+
     # At this point, if the personal defaults file exists, %params 
     # should be populated with any values defined in the %params in that 
     # defaults file.  Those values will be overriden with any defined in a 

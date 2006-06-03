@@ -1,5 +1,0 @@
-%params = (
-    text => [
-        indent  => 4,  # default
-    ],
-);
