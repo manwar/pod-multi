@@ -1,14 +1,14 @@
 README for Pod::Multi
 
-This document refers to version 0.05 of Pod::Multi.  This version was
+This document refers to version 0.06 of Pod::Multi.  This version was
 released June 3, 2006.
 
 To install this module on your system, place the tarball archive file in a 
 temporary directory and call the following:
 
-% gunzip Pod-Multi-0.05.tar.gz
-% tar xf Pod-Multi-0.05.tar
-% cd Pod-Multi-0.05
+% gunzip Pod-Multi-0.06.tar.gz
+% tar xf Pod-Multi-0.06.tar
+% cd Pod-Multi-0.06
 % perl Makefile.PL
 % make
 % make test

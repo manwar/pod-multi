@@ -5,7 +5,7 @@ use strict;
 use warnings;
 use Exporter ();
 our ($VERSION, @ISA, @EXPORT_OK);
-$VERSION     = 0.05;
+$VERSION     = 0.06;
 @ISA         = qw( Exporter );
 @EXPORT_OK   = qw(
     stringify

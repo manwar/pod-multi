@@ -10,7 +10,6 @@ t/01_load.t
 t/02_bad_args.t
 t/03_pm.t
 t/04_no_suffix.t
-t/05_html_no_options.t
 t/05_html_options.t
 t/06_text_width.t
 t/07_command.t
