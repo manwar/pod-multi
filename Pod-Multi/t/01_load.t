@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use Test::More 
-tests => 21;
+tests => 24;
 # qw(no_plan);
 
 BEGIN {
@@ -15,9 +15,8 @@ BEGIN {
     use_ok( 'File::Basename' );
     use_ok( 'File::Save::Home', qw|
         get_home_directory
-        get_subhome_directory_status
-        make_subhome_directory
-        restore_subhome_directory_status
+        conceal_target_file
+        reveal_target_file
     | );
     use_ok( 'Carp' );
     use_ok( 'Cwd' );
@@ -29,9 +28,11 @@ my $realhome;
 ok( $realhome = get_home_directory(), 
     "HOME or home-equivalent directory found on system");
 
-my $mmkr_dir_ref = get_subhome_directory_status(".pod2multi");
-my $mmkr_dir = make_subhome_directory($mmkr_dir_ref);
-ok( $mmkr_dir, "personal defaults directory found on system");
+my $target_ref = conceal_target_file( {
+    dir     => $realhome,
+    file    => '.pod2multirc',
+    test    => 1,
+} );
 
 my $cwd = cwd();
 my $pod = "$cwd/t/lib/s1.pod";
@@ -59,8 +60,5 @@ my %pred = (
     ok(chdir $cwd, "Changed back to original directory");
 }
 
-END {
-    ok( restore_subhome_directory_status($mmkr_dir_ref),
-        "original presence/absence of .pod2multi directory restored");
-}
+END { reveal_target_file($target_ref); }
 
