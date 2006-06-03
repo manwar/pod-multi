@@ -76,13 +76,6 @@ sub pod2multi {
                 $params{$outputmode}{$attribute} = $attr{$attribute};
             }
         }
-        # Need to move this test up
-#        for my $f (@all_formats_accepted) {
-#            if (exists $params{$f}) {
-#                croak "Value of option $f must be a hash ref"
-#                    unless ref($params{$f}) eq 'HASH';
-#            }
-#        }
     }
 
     my ($basename, $path, $suffix) 
@@ -142,8 +135,6 @@ sub pod2multi {
         croak "You cannot define a source file for the HTML output different from that of the text and man outputs";
     }
     %{$options{html}} = defined $params{html} ?  %{$params{html}} : ();
-#    $options{html}{infile} = $pod
-#        unless defined $params{html}{infile};
     $options{html}{infile} = $pod;
     $options{html}{outfile} = "$path$basename.html" 
         unless defined $params{html}{outfile};

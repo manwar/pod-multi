@@ -2,8 +2,8 @@
 use strict;
 use warnings;
 use Test::More 
-# tests => 63;
-qw(no_plan);
+tests => 28;
+# qw(no_plan);
 
 BEGIN {
     use_ok( 'Pod::Multi' );
