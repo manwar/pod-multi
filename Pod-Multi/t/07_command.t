@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use Test::More 
-tests => 29;
+tests => 28;
 # qw(no_plan);
 
 BEGIN {
@@ -12,7 +12,6 @@ BEGIN {
     use_ok( 'File::Basename' );
     use_ok( 'Carp' );
     use_ok( 'Cwd' );
-    use_ok( 'IO::Capture::Stderr');
     use_ok( 'File::Save::Home', qw|
         get_home_directory
         conceal_target_file

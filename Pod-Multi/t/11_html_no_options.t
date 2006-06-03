@@ -1,9 +1,9 @@
-# t/06_text_width.t - check handling of width option for text
+# t/11_html_no_options.t - check absence of html options
 use strict;
 use warnings;
 use Test::More 
-tests => 25;
-# qw(no_plan);
+# tests => 34;
+qw(no_plan);
 
 BEGIN {
     use_ok( 'Pod::Multi' );
@@ -12,14 +12,17 @@ BEGIN {
     use_ok( 'File::Basename' );
     use_ok( 'Carp' );
     use_ok( 'Cwd' );
-    use_ok( 'Pod::Text');
-    use_ok( 'File::Compare' );
     use_ok( 'File::Save::Home', qw|
         get_home_directory
         conceal_target_file
         reveal_target_file
     | );
 }
+use lib( "./t/lib" );
+use_ok( 'Pod::Multi::Auxiliary', qw(
+        stringify
+    )
+);
 
 my $realhome;
 ok( $realhome = get_home_directory(), 
@@ -49,29 +52,17 @@ my %pred = (
     copy ($pod, $testpod) or croak "Unable to copy $pod";
     ok(-f $testpod, "sample pod copied for testing");
     
-    my $maxwidth = 72;
-    ok(pod2multi(
-        source => $testpod, 
-        options => {
-            text => {
-                width   => $maxwidth,
-            },
-        },
-    ), "pod2multi completed");
+    # Test what happens when no html options are supplied
+    ok(pod2multi( source => $testpod ), "pod2multi completed");
     ok(-f "$tempdir/$pred{text}", "pod2text worked");
     ok(-f "$tempdir/$pred{man}", "pod2man worked");
     ok(-f "$tempdir/$pred{html}", "pod2html worked");
 
-    my $parser;
-    ok($parser = Pod::Text->new(width => $maxwidth),
-        "able to create parser from installed Pod::Text");
-    my $frominstalled = "$tempdir/installed.txt";
-    $parser->parse_from_file($testpod, $frominstalled);
-    ok(-f $frominstalled, "text version created from installed Pod::Text");
-    is( compare("$tempdir/$pred{text}", $frominstalled), 0,
-        "pod2multi version same as installed version");
+    like(stringify("$tempdir/$pred{html}"), 
+        qr{<title>s1</title>},
+       "HTML title tag located");
 
     ok(chdir $cwd, "Changed back to original directory");
 }
-
 END { reveal_target_file($target_ref); }
+

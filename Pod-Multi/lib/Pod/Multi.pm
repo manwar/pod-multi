@@ -18,8 +18,6 @@ use File::Spec;
 use File::Save::Home qw(
     get_home_directory
 );
-#    get_subhome_directory_status
-#    make_subhome_directory
 use Data::Dumper;
 
 sub pod2multi {
@@ -33,25 +31,8 @@ sub pod2multi {
     my @text_and_man = qw(text man);
     my @all_formats_accepted = (@text_and_man, q{html});
 
-    # to pull in any %params defined in 
-#    # .pod2multi/Pod/Multi/Personal/Defaults.pm
-    # .pod2multirc
+    # to pull in any %params defined in .pod2multirc
     our %params;  
-#    my $pod2multi_dir_ref;
-#    $pod2multi_dir_ref =  get_subhome_directory_status(".pod2multi");
-#    {
-#        my $pod2multi_dir = $pod2multi_dir_ref->{abs};
-#        if (defined $pod2multi_dir_ref->{flag}) {
-#            push @INC, $pod2multi_dir;
-#        }
-#        my $pers_file = File::Spec->catfile( $pod2multi_dir,
-#            qw| Pod Multi Personal Defaults.pm |
-#        );
-#        if (-f $pers_file) {
-#            require Pod::Multi::Personal::Defaults;
-#            unshift @ISA, qw(Pod::Multi::Personal::Defaults);
-#        }
-#    }
     my $homedir = get_home_directory();
     my $personal_defaults_file = "$homedir/.pod2multirc";
     require $personal_defaults_file if -f $personal_defaults_file;
@@ -60,15 +41,13 @@ sub pod2multi {
     # should be populated with any values defined in the %params in that 
     # defaults file.  Those values will be overriden with any defined in a 
     # Perl script and passed to pod2multi() as arguments.
-#print STDERR Dumper \%params;
+
     if (defined %params) {
         foreach my $outputformat (keys %params) {
             croak "Value of personal defaults option $outputformat must be a hash ref"
             unless ref($params{$outputformat}) eq 'HASH';
         }
     }
-
-# print STDERR Dumper \%params;
 
     if (exists $args{options}) {
         croak "Options must be supplied in a hash ref"
@@ -106,8 +85,6 @@ sub pod2multi {
         $options{$f} = exists $params{$f} ? $params{$f} : {};
     }
     
-# print STDERR Dumper \%options;
-
     my %outputpaths;
     for my $f (@text_and_man) {
         if (exists $options{$f}{outputpath}) {
@@ -424,10 +401,3 @@ pod2man(1).  pod2text(1).  pod2html(1).
 Pod::Man(3pm).  Pod::Text(3pm).  Pod::Html(3pm).
 
 =cut
-
-__END__
-
-# print STDERR Dumper $pod;
-# print STDERR Dumper $options{html};
-# print STDERR Dumper \@htmlargs;
-# print STDERR "f:  $f\tref:  ", ref($params{$f}), "\n";
