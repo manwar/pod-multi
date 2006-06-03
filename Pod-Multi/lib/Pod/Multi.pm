@@ -54,7 +54,7 @@ sub pod2multi {
     # should be populated with any values defined in the %params in that 
     # defaults file.  Those values will be overriden with any defined in a 
     # Perl script and passed to pod2multi() as arguments.
-
+#print STDERR Dumper \%params;
     if (defined %params) {
         foreach my $outputformat (keys %params) {
             croak "Value of personal defaults option $outputformat must be a hash ref"

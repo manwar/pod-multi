@@ -3,8 +3,8 @@
 use strict;
 use warnings;
 use Test::More 
-# tests => 30;
-qw(no_plan);
+tests => 30;
+# qw(no_plan);
 
 BEGIN {
     use_ok( 'Pod::Multi' );
@@ -21,11 +21,8 @@ use_ok( 'Pod::Multi::Auxiliary', qw(
     )
 );
 
-#        stringify
-#        _save_pretesting_status
-#        _restore_pretesting_status
-
 my $cwd = cwd();
+
 my $prepref = _subclass_preparatory_tests($cwd);
 my $persref         = $prepref->{persref};
 my $pers_def_ref    = $prepref->{pers_def_ref};
@@ -46,13 +43,26 @@ my %pred = (
 
 ########################################################################
 
-#{
-#
-#    my $alt    = 'Alt_block_new_method.pm';
-#    copy( "$prepref->{sourcedir}/$alt", "$eumm_dir/$alt")
-#        or die "Unable to copy $alt for testing: $!";
-#    ok(-f "$eumm_dir/$alt", "file copied for testing");
+my $altdir = "$cwd/t/lib/Pod/Multi/Personal";
+ok(-d $altdir, "path to bad defaults file exists");
+my $alt = "Defaults.pm";
+ok(-f "$altdir/$alt", "bad defaults file exists");
+copy("$altdir/$alt", "$eumm_dir/Personal/$alt")
+    or croak "Unable to copy bad defaults file for testing";
+ok(-f "$eumm_dir/Personal/$alt", 
+    "bad defaults file is now underneath home directory");
+my $tdir = cwd();
+my $testpod = "$tdir/$stub";
+copy ($pod, $testpod) or croak "Unable to copy $pod";
+ok(-f $testpod, "sample pod copied for testing");
 
+eval { pod2multi( source => $testpod ); };
+like($@, qr{^Value of personal defaults option},
+    "pod2multi correctly failed due bad format in personal defaults file");
+
+unlink("$eumm_dir/Personal/$alt") 
+    or croak "Unable to unlink bad defaults file after testing";
+ok(! -f "$eumm_dir/$alt", "bad defaults file removed after testing");
 
 END {
     _subclass_cleanup_tests( {
@@ -63,33 +73,5 @@ END {
         odir            => $cwd,
         mmkr_dir_ref    => $mmkr_dir_ref,
     } );
-}
-
-
-__END__
-
-{
-TODO: {
-  local $TODO = "Test will need alternate (defective) personal defaults file during testing";
-
-    ok(chdir $cwd, "Changed back to original directory");
-  }
-}
-{
-    my $tempdir = tempdir( CLEANUP => 1 );
-    chdir $tempdir or croak "Unable to change to $tempdir";
-    my $testpod = "$tempdir/$stub";
-    copy ($pod, $testpod) or croak "Unable to copy $pod";
-    ok(-f $testpod, "sample pod copied for testing");
-
-    eval { 
-        system(
-            qq{$^X -I"$cwd/blib/lib" "$cwd/blib/script/pod2multi" $testpod }
-        );
-    };
-    like($@, qr{^Value of personal defaults option},
-        "pod2multi correctly failed due bad format in personal defaults file");
-
-    ok(chdir $cwd, "Changed back to original directory");
 }
 

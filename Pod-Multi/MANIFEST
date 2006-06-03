@@ -4,7 +4,6 @@ LICENSE
 Makefile.PL
 MANIFEST
 MANIFEST.SKIP
-margin.pl
 README
 scripts/pod2multi
 t/01_load.t
