@@ -1,4 +1,5 @@
 # t/07_command.t - test command-line interface pod2multi
+#$Id$
 use strict;
 use warnings;
 use Test::More 

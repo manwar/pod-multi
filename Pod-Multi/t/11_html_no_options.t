@@ -1,4 +1,5 @@
 # t/11_html_no_options.t - check absence of html options
+#$Id$
 use strict;
 use warnings;
 use Test::More tests => 22;

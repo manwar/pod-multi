@@ -1,4 +1,5 @@
 # t/12_make_defaults.t - check creation of personal defaults file
+#$Id$
 # defaults file
 use strict;
 use warnings;

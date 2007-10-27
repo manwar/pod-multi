@@ -1,4 +1,5 @@
 # t/04_no_suffix.t - check what happens when POD filename has no extension
+#$Id$
 use strict;
 use warnings;
 use Test::More 

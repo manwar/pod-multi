@@ -1,4 +1,5 @@
 # t/03_pm.t - input file is Perl module
+#$Id$
 use strict;
 use warnings;
 use Test::More 

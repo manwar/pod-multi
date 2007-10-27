@@ -1,4 +1,5 @@
-# t/06_text_margin.t - check handling of margin option for text
+# t/08_text_margin.t - check handling of margin option for text
+#$Id$
 use strict;
 use warnings;
 use Test::More 

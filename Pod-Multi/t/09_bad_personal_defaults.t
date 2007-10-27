@@ -1,4 +1,5 @@
 # t/09_bad_personal_defaults.t - check what happens with defective personal
+#$Id$
 # defaults file
 use strict;
 use warnings;

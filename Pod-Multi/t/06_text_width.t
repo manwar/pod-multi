@@ -1,4 +1,5 @@
 # t/06_text_width.t - check handling of width option for text
+#$Id$
 use strict;
 use warnings;
 use Test::More 

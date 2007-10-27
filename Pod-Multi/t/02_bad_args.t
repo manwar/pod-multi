@@ -1,4 +1,5 @@
 # t/02_bad_args.t - check handling of bad arguments
+#$Id$
 use strict;
 use warnings;
 use Test::More 

@@ -1,4 +1,5 @@
 # t/10_text_outputpath.t - check handling of output path  option for text
+#$Id$
 use strict;
 use warnings;
 use Test::More 
