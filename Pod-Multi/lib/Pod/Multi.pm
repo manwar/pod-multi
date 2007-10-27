@@ -1,11 +1,11 @@
 package Pod::Multi;
 #$Id$
-require 5.006001;
+require 5.008;
 use strict;
 use warnings;
 use Exporter ();
 our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
-$VERSION     = 0.08;
+$VERSION     = 0.09;
 @ISA         = qw( Exporter );
 @EXPORT      = qw( pod2multi );
 @EXPORT_OK   = qw( make_options_defaults );
