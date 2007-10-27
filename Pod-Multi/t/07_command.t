@@ -76,7 +76,7 @@ my %pred = (
 
     # test that html title tag was set
     like(stringify("$tempdir/$pred{html}"), 
-        qr{<title>This\sis\sthe\sHTML\stitle</title>},
+        qr{<title>This\sis\sthe\sHTML\stitle<\/title>},
        "HTML title tag located");
 
     ok(chdir $cwd, "Changed back to original directory");

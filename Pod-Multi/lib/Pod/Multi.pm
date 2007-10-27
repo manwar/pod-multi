@@ -4,10 +4,11 @@ require 5.006001;
 use strict;
 use warnings;
 use Exporter ();
-our ($VERSION, @ISA, @EXPORT);
-$VERSION     = 0.06;
+our ($VERSION, @ISA, @EXPORT, @EXPORT_OK);
+$VERSION     = 0.08;
 @ISA         = qw( Exporter );
 @EXPORT      = qw( pod2multi );
+@EXPORT_OK   = qw( make_options_defaults );
 use Pod::Text;
 use Pod::Man;
 use Pod::Html;
@@ -18,7 +19,7 @@ use File::Spec;
 use File::Save::Home qw(
     get_home_directory
 );
-use Data::Dumper;
+#use Data::Dumper;
 
 sub pod2multi {
     croak "Must supply even number of arguments:  list of key-value pairs"
@@ -42,7 +43,8 @@ sub pod2multi {
     # defaults file.  Those values will be overriden with any defined in a 
     # Perl script and passed to pod2multi() as arguments.
 
-    if (defined %params) {
+#    if (defined %params) {
+    if (%params) {
         foreach my $outputformat (keys %params) {
             croak "Value of personal defaults option $outputformat must be a hash ref"
             unless ref($params{$outputformat}) eq 'HASH';
@@ -117,7 +119,7 @@ sub pod2multi {
     if (defined $params{html}{infile}) {
         croak "You cannot define a source file for the HTML output different from that of the text and man outputs";
     }
-    %{$options{html}} = defined $params{html} ?  %{$params{html}} : ();
+    %{$options{html}} = %{$params{html}} ?  %{$params{html}} : ();
     $options{html}{infile} = $pod;
     $options{html}{outfile} = "$path$basename.html" 
         unless defined $params{html}{outfile};
@@ -132,6 +134,22 @@ sub pod2multi {
     }
     Pod::Html::pod2html( @htmlargs );
 
+    return 1;
+}
+
+sub make_options_defaults {
+    my $optionsref = shift;
+    my $homedir = get_home_directory();
+    my $personal_defaults_file = "$homedir/.pod2multirc";
+    open my $FH, ">$personal_defaults_file" or
+        croak "Unable to open handle to $personal_defaults_file";
+    require Data::Dumper;
+    local $Data::Dumper::Indent=1;
+    local $Data::Dumper::Terse=1;
+    print $FH '%params = ';
+    print {$FH} Data::Dumper->Dump( [ $optionsref ], [ qw/*options/ ]  );
+    print $FH ";\n";
+    close $FH or croak "Unable to close handle to $personal_defaults_file";
     return 1;
 }
 
@@ -161,9 +179,7 @@ Inside a Perl program:
 
 or:
 
-  pod2multi(
-    source  => "/path/to/file_with_pod",
-    options => {
+  %options = (
         text     => {
             sentence    =>  0,
             width       => 78,
@@ -182,8 +198,15 @@ or:
             title        => "Title for HTML",
             ...
         },
-    },
   );
+
+  pod2multi(
+    source  => "/path/to/file_with_pod",
+    options => \%options,
+  );
+
+  use Pod::Multi qw(make_options_defaults);
+  make_options_defaults( \%options );
 
 =head1 DESCRIPTION
 
@@ -195,13 +218,13 @@ utilities that come along with Perl:  F<pod2text> and F<pod2html>.
 In production environments documentation of Perl I<programs> tends to be less
 rigorous than that of CPAN modules.  If you want to convince your co-workers
 of the value of writing documentation for such programs, you may want a
-painless way to create that documentation in a variety of formats.  If you
+painless way to generate that documentation in a variety of formats.  If you
 already know how to write documentation in Perl's Plain Old Documentation
-(POD) format, Pod::Multi will save you keystrokes by simultaneously generating
-documentation in manpage, plain-text and HTML formats from a source file
-containing POD.
+(POD) format, Pod::Multi will save you some keystrokes by simultaneously 
+generating documentation in manpage, plain-text and HTML formats from a 
+source file containing POD.
 
-In its current version, Pod::Multi creates those documentary files in the same
+In its current version, Pod::Multi generates those documentary files in the same
 directory as the source file.  It does not attempt to install those files
 anywhere else.  In particular, it does not attempt to install the manpage
 version in a MANPATH directory.  This may change in a future version, but for
@@ -220,13 +243,39 @@ individually.
 The functional interface may be used inside Perl
 programs and, if you have personal preferences for the options you would
 normally provide to F<pod2man>, F<pod2text> or F<pod2html>, you can specify
-them in the functional interface.  (In a future version, you'll have the
-option of saving those preferences to a personal defaults file stored
-underneath your home directory.)
+them in the functional interface.  If you have a strong set of personal
+preferences as to how you like your text, manpage and HTML versions of your 
+POD to look, you can even save them with the C<make_options_defaults()>
+function, which stores those options in a F<.pod2multirc> file in an
+appropriate place underneath your home directory.
 
 =head1 USAGE
 
-=head2 Functional Interface
+=head2 Command-Line Interface:  F<pod2multi>
+
+=head3 Default Case
+
+  pod2multi file_with_pod
+
+Will create files called F<file_with_pod.man>, F<file_with_pod.txt> and
+F<file_with_pod.html> in the same directory where F<file_with_pod> is located.
+You must have write permissions to that directory.  The name F<file_with_pod>
+cannot contain wordspaces.  Unless you have saved a F<.pod2multirc> personal
+defaults file under your home directory, these files will be created with 
+the default options you would get by calling F<pod2man>, F<pod2text> and 
+F<pod2html> individually.  This in turn means the the files so generated will
+follow the format of the Pod::Man, Pod::Text and Pod::Html modules you have
+installed on your system.  The title tag in the HTML version will be 
+C<file_with_pod>.
+
+=head3 Provide Title Tag for HTML Version
+
+  pod2multi file_with_pod Title for HTML Version
+
+Exactly the same as the default case, with one exception:  the title tag in
+the HTML version will be C<Title for HTML Version>.
+
+=head2 Functional Interface:  C<pod2multi()>
 
 When called into a Perl program via C<use>, C<require> or C<do>, Pod::Multi
 automatically exports a single function:  C<pod2multi>.
@@ -236,7 +285,7 @@ automatically exports a single function:  C<pod2multi>.
   pod2multi("/path/to/file_with_pod");
 
 This is analogous to the default case in the command-line interface (above).
-If pod2multi is supplied with just one argument, it assumes that that argument
+If C<pod2multi()> is supplied with just one argument, it assumes that that argument
 is the path to a file containing documentation in POD format and proceeds to
 create files called F<file_with_pod.man>, F<file_with_pod.txt> and
 F<file_with_pod.html> in directory F</path/to/> (assuming that directory is
@@ -261,7 +310,7 @@ containing documentation in the POD format.
 The C<options> key is, of course, optional.  (But why would you use the
 multiple argument version unless you wanted to specify options?)  The value of
 the C<options> key must be a reference to an hash (named or anonymous) which
-holds a list of key-value pairs.
+holds a list of key-value pairs.  The elements in that hash are as follows:
 
 =over 4
 
@@ -344,25 +393,44 @@ long options needed by C<Pod::Html::pod2html()>.
 
 =back
 
-=head2 Command-Line Interface
+=head3 C<make_options_defaults()>
 
-=head3 Default Case
+If you have strong preferences as to how you like your manpage, text and HTML
+manuals to look, you can have F<pod2multi> produce the same results everytime
+by saving your chosen defaults in a file called F<.pod2multirc> which is
+stored underneath your home directory.  Place your preferences in a
+C<%options> with C<man>, C<text> and/or C<html> keys as needed.  Then pass a
+reference to that hash to C<make_options_defaults()> and call that function in
+a Perl program.
 
-  pod2multi file_with_pod
+The place where <.pod2multirc> will be stored is determined by a call to
+C<File::Save::Home::get_home_directory()>.  File::Save::Home, by the same
+author as Pod::Multi and available from CPAN, is a pre-requisite to
+Pod::Multi.
 
-Will create files called F<file_with_pod.man>, F<file_with_pod.txt> and
-F<file_with_pod.html> in the same directory where F<file_with_pod> is located.
-You must have write permissions to that directory.  The name F<file_with_pod>
-cannot contain wordspaces.  These files will be created with the default
-options you would get by calling F<pod2man>, F<pod2text> and F<pod2html>
-individually.  The title tag in the HTML version will be C<file_with_pod>.
+C<make_options_defaults()> is I<not> exported by default.  You must explicitly
+request it with:
 
-=head3 Provide Title Tag for HTML Version
+    use Pod::Multi qw( C<make_options_defaults()> );
 
-  pod2multi file_with_pod Title for HTML Version
+=head1 PREREQUISITES
 
-Exactly the same as the default case, with one exception:  the title tag in
-the HTML version will be C<Title for HTML Version>.
+=head2 Perl Core Modules
+
+    Carp
+    Data::Dumper
+    File::Basename
+    File::Path
+    File::Spec
+    Pod::Html
+    Pod::Man
+    Pod::Text
+    Test::Simple
+
+=head2 CPAN Modules
+
+    File::Save::Home
+    IO::Capture
 
 =head1 BUGS
 
@@ -378,15 +446,18 @@ Contact author at his cpan [dot] org address below.
     CPAN ID: JKEENAN
     jkeenan@cpan.org
     http://search.cpan.org/~jkeenan/
+    http://thenceforward.net/perl/modules/Pod-Multi/
 
 =head1 ACKNOWLEDGEMENTS
 
 Steven Lembark made the suggestion about submitting all modules needed to a
 C<use_ok> at the start of the very first test.
 
-David H Adler assisted with debugging.
+David H Adler and David A Golden assisted with debugging.
 
 =head1 COPYRIGHT
+
+Copyright 2006 James E Keenan.  All rights reserved.
 
 This program is free software; you can redistribute
 it and/or modify it under the same terms as Perl itself.

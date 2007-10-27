@@ -31,13 +31,6 @@ my $target_ref = conceal_target_file( {
 
 my $cwd = cwd();
 
-#my $prepref = _subclass_preparatory_tests($cwd);
-#my $persref         = $prepref->{persref};
-#my $pers_def_ref    = $prepref->{pers_def_ref};
-#my %els1            = %{ $prepref->{initial_els_ref} };
-#my $eumm_dir        = $prepref->{eumm_dir};
-#my $mmkr_dir_ref    = $prepref->{mmkr_dir_ref};
-
 my $pod = "$cwd/t/lib/s1.pod";
 ok(-f $pod, "pod sample file located");
 my ($name, $path, $suffix) = fileparse($pod, qr{\.pod});
@@ -47,30 +40,6 @@ my %pred = (
     man     => "$name.1",
     html    => "$name.html",
 );
-
-
-########################################################################
-
-#my $altdir = "$cwd/t/lib/Pod/Multi/Personal";
-#ok(-d $altdir, "path to bad defaults file exists");
-#my $alt = "Defaults.pm";
-#ok(-f "$altdir/$alt", "bad defaults file exists");
-#copy("$altdir/$alt", "$eumm_dir/Personal/$alt")
-#    or croak "Unable to copy bad defaults file for testing";
-#ok(-f "$eumm_dir/Personal/$alt", 
-#    "bad defaults file is now underneath home directory");
-#my $tdir = cwd();
-#my $testpod = "$tdir/$stub";
-#copy ($pod, $testpod) or croak "Unable to copy $pod";
-#ok(-f $testpod, "sample pod copied for testing");
-#
-#eval { pod2multi( source => $testpod ); };
-#like($@, qr{^Value of personal defaults option},
-#    "pod2multi correctly failed due bad format in personal defaults file");
-#
-#unlink("$eumm_dir/Personal/$alt") 
-#    or croak "Unable to unlink bad defaults file after testing";
-#ok(! -f "$eumm_dir/$alt", "bad defaults file removed after testing");
 
 {
     my $tempdir = tempdir( CLEANUP => 1 );

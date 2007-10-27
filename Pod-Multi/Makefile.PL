@@ -20,5 +20,6 @@ WriteMakefile(
                      'File::Path' => 0,
                      'File::Spec' => 0,
                      'File::Save::Home' => 0.03,
+                     'Data::Dumper' => 0,
                     },
 );

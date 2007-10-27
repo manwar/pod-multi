@@ -17,6 +17,8 @@ t/08_text_margin.t
 t/09_bad_personal_defaults.t
 t/10_text_outputpath.t
 t/11_html_no_options.t
+t/12_make_defaults.t
+t/13_empty_options.t
 t/lib/.pod2multirc.bad
 t/lib/Pod/Multi/Auxiliary.pm
 t/lib/s1.pod

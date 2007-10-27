@@ -1,9 +1,7 @@
 # t/11_html_no_options.t - check absence of html options
 use strict;
 use warnings;
-use Test::More 
-# tests => 34;
-qw(no_plan);
+use Test::More tests => 22;
 
 BEGIN {
     use_ok( 'Pod::Multi' );
@@ -59,7 +57,7 @@ my %pred = (
     ok(-f "$tempdir/$pred{html}", "pod2html worked");
 
     like(stringify("$tempdir/$pred{html}"), 
-        qr{<title>s1</title>},
+        qr{<title>s1<\/title>},
        "HTML title tag located");
 
     ok(chdir $cwd, "Changed back to original directory");
