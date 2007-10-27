@@ -1,5 +1,5 @@
 package Pod::Multi;
-#$Id#
+#$Id$
 require 5.006001;
 use strict;
 use warnings;
