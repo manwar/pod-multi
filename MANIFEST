@@ -1,4 +1,5 @@
-#$Id$
+.gitignore
+.version_info.pl
 Changes
 lib/Pod/Multi.pm
 LICENSE
