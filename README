@@ -2,7 +2,7 @@
 README for Pod::Multi
 
 This document refers to version 0.10 of Pod::Multi.  This version was
-released March 19 2017.
+released May 16 2017.
 
 To install this module on your system, place the tarball archive file in a
 temporary directory and call the following:
