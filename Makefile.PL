@@ -8,6 +8,7 @@ WriteMakefile(
     VERSION_FROM => 'lib/Pod/Multi.pm', # finds \$VERSION
     AUTHOR       => 'James E Keenan (jkeenan@cpan.org)',
     ABSTRACT     => 'pod2man, pod2text, pod2html simultaneously',
+    LICENSE      => 'perl_5',
     EXE_FILES    => [ 'scripts/pod2multi' ],
     PREREQ_PM    => {
                      'Test::Simple' => 0.44,
